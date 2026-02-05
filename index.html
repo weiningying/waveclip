@@ -87,7 +87,6 @@
             padding: 40px;
             width: 100%;
             max-width: 1200px;
-            min-height: 400px;
             box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(10px);
             transition: background 0.3s ease;
@@ -244,6 +243,14 @@
         .toolbar-btn.active:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .toolbar-divider {
+            width: 1px;
+            height: 24px;
+            background: var(--border-color);
+            opacity: 0.3;
+            margin: 0 4px;
         }
 
         .waveform-container {
@@ -843,6 +850,108 @@
             opacity: 0.6;
         }
 
+        /* 确认弹窗 */
+        .confirm-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .confirm-modal.show {
+            display: flex;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .confirm-content {
+            background: var(--container-bg);
+            border-radius: 20px;
+            padding: 32px 40px;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
+            animation: scaleIn 0.2s ease;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .confirm-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .confirm-title {
+            color: var(--text-primary);
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0 0 12px 0;
+        }
+
+        .confirm-message {
+            color: var(--text-secondary);
+            font-size: 15px;
+            line-height: 1.6;
+            margin: 0 0 24px 0;
+        }
+
+        .confirm-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .confirm-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .confirm-cancel {
+            background: var(--info-bg-end);
+            color: var(--text-secondary);
+        }
+
+        .confirm-cancel:hover {
+            background: var(--info-bg-start);
+            transform: translateY(-1px);
+        }
+
+        .confirm-ok {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .confirm-ok:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.5);
+        }
+
+        /* 深色模式确认弹窗 */
+        body.dark-mode .confirm-content {
+            background: rgba(35, 45, 65, 0.98);
+        }
+
         /* 帮助弹窗 */
         .help-modal {
             display: none;
@@ -1068,6 +1177,19 @@
 
             <div class="waveform-wrapper">
                 <div class="waveform-toolbar">
+                    <button class="toolbar-btn" id="resetBtn" title="重置所有变化">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                            <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
+                        </svg>
+                        <span>重置</span>
+                    </button>
+                    <div class="toolbar-divider"></div>
+                    <button class="toolbar-btn" id="selectAllBtn" title="选择全部音频">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                            <path d="M3 5h2v14H3zm4 0h14v2H7zm0 4h14v2H7zm0 4h14v2H7zm0 4h14v2H7z"/>
+                        </svg>
+                        <span>全选</span>
+                    </button>
                     <button class="toolbar-btn" id="cutBtn" title="删除选中范围 (Del)">
                         <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
                             <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/>
@@ -1143,6 +1265,19 @@
 
         <!-- 帮助按钮 -->
         <button class="help-btn" id="helpBtn" title="使用说明">⋯</button>
+    </div>
+
+    <!-- 确认弹窗 -->
+    <div class="confirm-modal" id="confirmModal">
+        <div class="confirm-content">
+            <div class="confirm-icon">⚠️</div>
+            <h3 class="confirm-title">确认重置</h3>
+            <p class="confirm-message">确定要重置所有变化吗？<br>这将恢复到刚加载音频时的原始状怂。</p>
+            <div class="confirm-buttons">
+                <button class="confirm-btn confirm-cancel" id="confirmCancel">取消</button>
+                <button class="confirm-btn confirm-ok" id="confirmOk">确认重置</button>
+            </div>
+        </div>
     </div>
 
     <!-- 帮助弹窗 -->
@@ -1321,6 +1456,8 @@
         const cutBtn = document.getElementById('cutBtn');
         const undoBtn = document.getElementById('undoBtn');
         const redoBtn = document.getElementById('redoBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const selectAllBtn = document.getElementById('selectAllBtn');
         const progressContainer = document.getElementById('progressContainer');
         const progressFill = document.getElementById('progressFill');
         const progressText = document.getElementById('progressText');
@@ -1335,6 +1472,9 @@
         const helpBtn = document.getElementById('helpBtn');
         const helpModal = document.getElementById('helpModal');
         const helpClose = document.getElementById('helpClose');
+        const confirmModal = document.getElementById('confirmModal');
+        const confirmCancel = document.getElementById('confirmCancel');
+        const confirmOk = document.getElementById('confirmOk');
         
         // 鼠标状态追踪
         let isMouseOverWaveform = false;
@@ -1344,6 +1484,9 @@
         
         // 导出设置
         let exportBitRate = 192; // 默认导出码率 192kbps
+        
+        // 原始音频缓冲区（用于重置）
+        let originalAudioBuffer = null;
         
         // 历史记录栈（用于撤销）
         const historyStack = [];
@@ -1498,6 +1641,88 @@
         // 重做按钮点击
         redoBtn.addEventListener('click', redo);
         
+        // 重置按钮点击
+        // 执行重置操作
+        function executeReset() {
+            // 复制原始音频缓冲区
+            const numChannels = originalAudioBuffer.numberOfChannels;
+            const sampleRate = originalAudioBuffer.sampleRate;
+            audioBuffer = audioContext.createBuffer(numChannels, originalAudioBuffer.length, sampleRate);
+            
+            for (let ch = 0; ch < numChannels; ch++) {
+                audioBuffer.getChannelData(ch).set(originalAudioBuffer.getChannelData(ch));
+            }
+            
+            // 重置状态
+            duration = audioBuffer.duration;
+            startTime = 0;
+            endTime = duration;
+            
+            // 清空历史记录
+            historyStack.length = 0;
+            redoStack.length = 0;
+            updateHistoryButtonState();
+            
+            // 更新显示
+            durationEl.textContent = formatTime(duration);
+            startTimeEl.textContent = formatTime(startTime);
+            endTimeEl.textContent = formatTime(endTime);
+            
+            // 更新音频播放器
+            const newBlob = bufferToWave(audioBuffer, 0, audioBuffer.length);
+            const url = URL.createObjectURL(newBlob);
+            audioPlayer.src = url;
+            
+            // 重绘波形图
+            drawWaveform();
+            updateTrimUI();
+            
+            showToast('重置成功', '已恢复到原始状态', 'success', 3000);
+        }
+        
+        // 重置按钮点击 - 显示确认弹窗
+        resetBtn.addEventListener('click', () => {
+            if (!audioBuffer || !originalAudioBuffer) return;
+            confirmModal.classList.add('show');
+        });
+        
+        // 全选按钮点击
+        selectAllBtn.addEventListener('click', () => {
+            if (!audioBuffer || !duration) return;
+            
+            startTime = 0;
+            endTime = duration;
+            
+            updateTrimUI();
+            updatePlayhead();
+            
+            showToast('全选', '已选择整个音频范围', 'success', 2000);
+        });
+        
+        // 确认弹窗事件
+        confirmCancel.addEventListener('click', () => {
+            confirmModal.classList.remove('show');
+        });
+        
+        confirmOk.addEventListener('click', () => {
+            confirmModal.classList.remove('show');
+            executeReset();
+        });
+        
+        // 点击弹窗外部关闭
+        confirmModal.addEventListener('click', (e) => {
+            if (e.target === confirmModal) {
+                confirmModal.classList.remove('show');
+            }
+        });
+        
+        // ESC 键关闭确认弹窗
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Escape' && confirmModal.classList.contains('show')) {
+                confirmModal.classList.remove('show');
+            }
+        });
+        
         // 键盘快捷键 Ctrl+Z 撤销 / Ctrl+Y 重做 / Delete 删除选区
         document.addEventListener('keydown', (e) => {
             // 避免在输入框等可编辑元素中触发
@@ -1562,12 +1787,32 @@
                 cutBtn.classList.remove('active');
             }
         }
+        
+        // 更新重置按钮状态
+        function updateResetButtonState() {
+            if (audioBuffer && originalAudioBuffer) {
+                resetBtn.classList.add('active');
+            } else {
+                resetBtn.classList.remove('active');
+            }
+        }
+        
+        // 更新全选按钮状态
+        function updateSelectAllButtonState() {
+            if (audioBuffer && duration) {
+                selectAllBtn.classList.add('active');
+            } else {
+                selectAllBtn.classList.remove('active');
+            }
+        }
 
         // 监听选区变化
         const originalUpdateTrimUI = updateTrimUI;
         updateTrimUI = function() {
             originalUpdateTrimUI();
             updateCutButtonState();
+            updateResetButtonState();
+            updateSelectAllButtonState();
         };
 
         // 删除选中范围
@@ -1780,6 +2025,14 @@
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
             const arrayBuffer = await file.arrayBuffer();
             audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+            
+            // 保存原始音频缓冲区副本
+            const numChannels = audioBuffer.numberOfChannels;
+            const sampleRate = audioBuffer.sampleRate;
+            originalAudioBuffer = audioContext.createBuffer(numChannels, audioBuffer.length, sampleRate);
+            for (let ch = 0; ch < numChannels; ch++) {
+                originalAudioBuffer.getChannelData(ch).set(audioBuffer.getChannelData(ch));
+            }
             
             duration = audioBuffer.duration;
             startTime = 0;
