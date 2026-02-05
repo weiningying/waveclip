@@ -1041,6 +1041,7 @@
                 selectStartTooltip.style.left = `${startX}px`;
                 
                 // 更新跟随鼠标的时间框位置和内容（显示当前/终点时间）
+                cursorTimeTooltip.classList.add('active');
                 cursorTimeTooltip.style.left = `${x}px`;
                 cursorTimeTooltip.textContent = formatTime((currentX / rect.width) * duration);
             }
