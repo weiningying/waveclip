@@ -762,6 +762,170 @@
                 opacity: 0;
             }
         }
+
+        /* 帮助按钮 - 与主题切换按钮风格一致 */
+        .help-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: transparent;
+            border: none;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0.3;
+            transition: opacity 0.2s ease;
+            z-index: 10;
+            padding: 0;
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .help-btn:hover {
+            opacity: 0.6;
+        }
+
+        /* 帮助弹窗 */
+        .help-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .help-modal.show {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .help-content {
+            background: var(--container-bg);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 480px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .help-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+
+        .help-header h3 {
+            color: var(--text-primary);
+            font-size: 18px;
+            margin: 0;
+        }
+
+        .help-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .help-close:hover {
+            background: rgba(0, 0, 0, 0.1);
+            color: var(--text-primary);
+        }
+
+        .help-body {
+            padding: 32px;
+            overflow-y: auto;
+            max-height: calc(80vh - 70px);
+        }
+
+        .help-section {
+            margin-bottom: 20px;
+        }
+
+        .help-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .help-section h4 {
+            color: var(--border-color);
+            font-size: 14px;
+            margin: 0 0 8px 0;
+        }
+
+        .help-section p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .help-section ul {
+            margin: 0;
+            padding-left: 18px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .help-section li {
+            margin: 0;
+        }
+
+        .help-tip {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 20px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            border-left: 3px solid var(--border-color);
+        }
+
+        /* 深色模式适配 */
+        body.dark-mode .help-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -842,6 +1006,53 @@
                 <div class="progress-fill" id="progressFill"></div>
             </div>
             <div class="progress-text" id="progressText">处理中...</div>
+        </div>
+
+        <!-- 帮助按钮 -->
+        <button class="help-btn" id="helpBtn" title="使用说明">⋯</button>
+    </div>
+
+    <!-- 帮助弹窗 -->
+    <div class="help-modal" id="helpModal">
+        <div class="help-content">
+            <div class="help-header">
+                <h3>使用说明</h3>
+                <button class="help-close" id="helpClose">&times;</button>
+            </div>
+            <div class="help-body">
+                <div class="help-section">
+                    <h4>1. 导入音频</h4>
+                    <p>点击或拖拽音频文件到上传区域。支持 MP3、WAV 等常见格式。</p>
+                </div>
+                <div class="help-section">
+                    <h4>2. 选择剪辑范围</h4>
+                    <ul>
+                        <li><strong>拖动红色控制杆</strong>：调整开始和结束位置</li>
+                        <li><strong>鼠标框选</strong>：在波形图上按住左键拖动选择范围</li>
+                        <li><strong>精确输入</strong>：点击开始/结束时间直接编辑</li>
+                    </ul>
+                </div>
+                <div class="help-section">
+                    <h4>3. 预览播放</h4>
+                    <ul>
+                        <li>鼠标悬停在波形图上，按播放按钮从光标处播放</li>
+                        <li>播放中点击波形图可跳转到任意位置</li>
+                        <li><strong>空格键</strong>：快捷播放/暂停</li>
+                    </ul>
+                </div>
+                <div class="help-section">
+                    <h4>4. 导出音频</h4>
+                    <p>点击"导出 MP3"下载剪辑后的音频。可选码率：</p>
+                    <ul>
+                        <li>128 kbps - 普通品质</li>
+                        <li>192 kbps - 标准品质（推荐）</li>
+                        <li>320 kbps - 高品质</li>
+                    </ul>
+                </div>
+                <div class="help-tip">
+                    <strong>💡 提示</strong>：所有处理在浏览器本地完成，音频不会上传到服务器。
+                </div>
+            </div>
         </div>
     </div>
 
@@ -941,6 +1152,9 @@
         const toastContainer = document.getElementById('toastContainer');
         const fileSizeEl = document.getElementById('fileSize');
         const bitRateEl = document.getElementById('bitRate');
+        const helpBtn = document.getElementById('helpBtn');
+        const helpModal = document.getElementById('helpModal');
+        const helpClose = document.getElementById('helpClose');
         
         // 鼠标状态追踪
         let isMouseOverWaveform = false;
@@ -974,6 +1188,28 @@
                 exportBitRateDisplay.textContent = exportBitRate + ' kbps';
                 exportMenu.classList.remove('show');
             });
+        });
+
+        // 帮助按钮交互
+        helpBtn.addEventListener('click', () => {
+            helpModal.classList.add('show');
+        });
+
+        helpClose.addEventListener('click', () => {
+            helpModal.classList.remove('show');
+        });
+
+        helpModal.addEventListener('click', (e) => {
+            if (e.target === helpModal) {
+                helpModal.classList.remove('show');
+            }
+        });
+
+        // ESC 键关闭帮助弹窗
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Escape' && helpModal.classList.contains('show')) {
+                helpModal.classList.remove('show');
+            }
         });
         
         // 框选状态
@@ -1845,7 +2081,7 @@
                     const url = URL.createObjectURL(mp3Blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = `剪辑_${fileName.textContent.replace(/\.[^.]+$/, '')}.mp3`;
+                    a.download = `WaveClip-${fileName.textContent.replace(/\.[^.]+$/, '')}.mp3`;
                     a.click();
                     URL.revokeObjectURL(url);
                     
