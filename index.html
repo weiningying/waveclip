@@ -95,7 +95,7 @@
             pointer-events: none;
             z-index: -1;
             transform: rotate(315deg);
-            animation: waveMove 120s linear infinite;
+            animation: waveMove 600s linear infinite;
         }
         
         /* wave 层从左上角向右下角缓慢移动的动画 */
@@ -2429,6 +2429,9 @@
             historyStack.length = 0;
             redoStack.length = 0;
             updateHistoryButtonState();
+            
+            // 加载音频后停止背景动画，防止影响工作专注度
+            document.body.style.setProperty('--wave-animation', 'none');
         }
 
         // 绘制波形
