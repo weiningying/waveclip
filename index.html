@@ -359,42 +359,30 @@
             margin: 0 4px;
         }
         
-        .toolbar-prefix {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 0 8px;
-        }
-        
-        .toolbar-prefix label {
-            font-size: 12px;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-        
-        .toolbar-prefix input {
+        .toolbar-prefix-input {
             width: 80px;
-            height: 26px;
-            padding: 0 8px;
+            height: 36px;
+            padding: 6px 12px;
             border: 1px solid var(--border-color);
-            border-radius: 6px;
+            border-radius: 8px;
             background: var(--container-bg);
             color: var(--text-primary);
-            font-size: 12px;
+            font-size: 13px;
+            font-weight: 500;
             outline: none;
-            transition: border-color 0.2s ease;
+            transition: all 0.2s ease;
         }
         
-        .toolbar-prefix input:focus {
+        .toolbar-prefix-input:focus {
             border-color: #667eea;
         }
         
-        .toolbar-prefix input::placeholder {
+        .toolbar-prefix-input::placeholder {
             color: var(--text-muted);
-            opacity: 0.6;
+            opacity: 0.8;
         }
         
-        .toolbar-prefix input:disabled {
+        .toolbar-prefix-input:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
@@ -1427,10 +1415,7 @@
                         <span>重做</span>
                     </button>
                     <div class="toolbar-divider"></div>
-                    <div class="toolbar-prefix">
-                        <label for="prefixInput">前缀</label>
-                        <input type="text" id="prefixInput" placeholder="WaveClip" title="导出文件名前缀">
-                    </div>
+                    <input type="text" class="toolbar-prefix-input" id="prefixInput" placeholder="前缀" title="导出文件名前缀（为空则使用 WaveClip）">
                 </div>
                 <div class="waveform-scrollbar" id="waveformScrollbar">
                     <div class="waveform-scroll-track">
