@@ -587,12 +587,18 @@
         let mouseDownX = 0;
         let mouseDownY = 0;
         let hasDragged = false;
+        let selectionBackup = null; // 备份原有选择范围
         const MIN_DRAG_DISTANCE = 5; // 最小拖拽距离（像素）
 
         // 设置 canvas 尺寸
         function resizeCanvas() {
             canvas.width = waveformContainer.clientWidth;
             canvas.height = waveformContainer.clientHeight;
+            // 如果已加载音频，重新绘制波形
+            if (audioBuffer) {
+                drawWaveform();
+                updateTrimUI();
+            }
         }
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
@@ -1099,15 +1105,46 @@
             
             // 标记可能开始框选（但还没确定）
             isSelecting = true;
+            
+            // 备份原有选择范围
+            selectionBackup = { start: startTime, end: endTime };
         });
         
+        // ESC 键取消拖选
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isSelecting) {
+                e.preventDefault();
+                
+                // 恢复原有选择范围
+                if (selectionBackup) {
+                    startTime = selectionBackup.start;
+                    endTime = selectionBackup.end;
+                    updateTrimUI();
+                }
+                
+                // 清理框选状态
+                isSelecting = false;
+                hasDragged = false;
+                selectionPreview.classList.remove('active');
+                selectStartTooltip.classList.remove('active');
+                cursorTimeTooltip.classList.remove('active');
+                
+                // 恢复预览线显示
+                if (isMouseOverWaveform) {
+                    previewLine.classList.add('active');
+                    cursorTimeTooltip.classList.add('active');
+                }
+            }
+        });
+
         // 框选功能：鼠标松开完成选择
         document.addEventListener('mouseup', (e) => {
             if (!isSelecting || !audioBuffer || !duration) return;
             
-            // 如果没有真正拖拽（只是单击），取消框选
+            // 如果没有真正拖拽（只是单击），取消框选，恢复原有范围
             if (!hasDragged) {
                 isSelecting = false;
+                selectionBackup = null;
                 // 恢复预览线显示
                 if (isMouseOverWaveform) {
                     previewLine.classList.add('active');
@@ -1142,6 +1179,7 @@
             // 结束框选模式
             isSelecting = false;
             hasDragged = false;
+            selectionBackup = null;
             selectionPreview.classList.remove('active');
             selectStartTooltip.classList.remove('active');
             if (isMouseOverWaveform) {
