@@ -4,7 +4,7 @@ FROM nginx:alpine
 WORKDIR /usr/share/nginx/html
 
 # 复制项目文件
-COPY index.html wave.svg ./
+COPY index.html wave.svg wave-light.svg wave-dark.svg ./
 
 # 设置文件权限
 RUN chmod -R 644 /usr/share/nginx/html/*
