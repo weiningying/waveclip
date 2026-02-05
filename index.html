@@ -494,6 +494,139 @@
             background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
         }
 
+        /* 导出下拉菜单 */
+        .export-dropdown {
+            position: relative;
+            display: flex;
+        }
+
+        .export-dropdown #exportBtn {
+            border-radius: 10px 0 0 10px;
+            padding: 8px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            min-height: 48px;
+            min-width: 140px;
+            transition: all 0.3s ease;
+        }
+
+        .export-dropdown #exportBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+        }
+
+        .export-dropdown #exportBtn .export-main {
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .export-dropdown #exportBtn .export-bitrate {
+            font-size: 10px;
+            font-weight: 500;
+            opacity: 0.85;
+            line-height: 1.2;
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+
+        .export-dropdown .dropdown-arrow {
+            border-radius: 0 10px 10px 0;
+            padding: 14px 10px;
+            margin-left: 1px;
+            font-size: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .export-dropdown .dropdown-arrow:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+        }
+
+        .export-dropdown .dropdown-menu {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            margin-bottom: 8px;
+            background: var(--container-bg);
+            border-radius: 12px;
+            box-shadow: 0 -4px 40px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            min-width: 0;
+            padding: 8px;
+            display: none;
+            z-index: 100;
+            border: 1px solid var(--border-color);
+        }
+
+        .export-dropdown .dropdown-menu.show {
+            display: block;
+            animation: dropdownFadeInUp 0.2s ease;
+        }
+
+        @keyframes dropdownFadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .export-dropdown .dropdown-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .export-dropdown .dropdown-item:hover {
+            background: var(--time-editable-bg);
+        }
+
+        .export-dropdown .dropdown-item.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .export-dropdown .dropdown-item.active .dropdown-label,
+        .export-dropdown .dropdown-item.active .dropdown-value {
+            color: white;
+        }
+
+        .export-dropdown .dropdown-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .export-dropdown .dropdown-value {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+
+        /* 深色模式下拉菜单 */
+        body.dark-mode .export-dropdown .dropdown-menu {
+            background: rgba(35, 45, 65, 0.98);
+            border-color: rgba(124, 139, 224, 0.3);
+        }
+
+        body.dark-mode .export-dropdown .dropdown-label {
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .export-dropdown .dropdown-value {
+            color: #a0aec0;
+        }
+
         .progress-container {
             display: none;
             margin-top: 25px;
@@ -680,7 +813,27 @@
 
             <div class="controls">
                 <button class="btn-secondary" id="playBtn">▶ 播放片段</button>
-                <button class="btn-primary" id="exportBtn">📥 导出 MP3</button>
+                <div class="export-dropdown">
+                    <button class="btn-primary" id="exportBtn">
+                        <span class="export-main">导出 MP3</span>
+                        <span class="export-bitrate" id="exportBitRateDisplay">192 kbps</span>
+                    </button>
+                    <button class="btn-primary dropdown-arrow" id="exportArrow">▲</button>
+                    <div class="dropdown-menu" id="exportMenu">
+                        <div class="dropdown-item" data-bitrate="128">
+                            <span class="dropdown-label">普通品质</span>
+                            <span class="dropdown-value">128 kbps</span>
+                        </div>
+                        <div class="dropdown-item active" data-bitrate="192">
+                            <span class="dropdown-label">标准品质</span>
+                            <span class="dropdown-value">192 kbps</span>
+                        </div>
+                        <div class="dropdown-item" data-bitrate="320">
+                            <span class="dropdown-label">高品质</span>
+                            <span class="dropdown-value">320 kbps</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -775,6 +928,8 @@
         const ctx = canvas.getContext('2d');
         const playBtn = document.getElementById('playBtn');
         const exportBtn = document.getElementById('exportBtn');
+        const exportArrow = document.getElementById('exportArrow');
+        const exportMenu = document.getElementById('exportMenu');
         const progressContainer = document.getElementById('progressContainer');
         const progressFill = document.getElementById('progressFill');
         const progressText = document.getElementById('progressText');
@@ -792,6 +947,34 @@
         let isMouseOverPlayer = false;
         let mouseXPercent = 0;
         let playheadHideTimer = null; // 播放头自动隐藏定时器
+        
+        // 导出设置
+        let exportBitRate = 192; // 默认导出码率 192kbps
+        
+        // 下拉菜单控制
+        exportArrow.addEventListener('click', (e) => {
+            e.stopPropagation();
+            exportMenu.classList.toggle('show');
+        });
+
+        // 点击页面其他地方关闭下拉菜单
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.export-dropdown')) {
+                exportMenu.classList.remove('show');
+            }
+        });
+
+        // 选择导出质量
+        const exportBitRateDisplay = document.getElementById('exportBitRateDisplay');
+        exportMenu.querySelectorAll('.dropdown-item').forEach(item => {
+            item.addEventListener('click', () => {
+                exportMenu.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                exportBitRate = parseInt(item.dataset.bitrate);
+                exportBitRateDisplay.textContent = exportBitRate + ' kbps';
+                exportMenu.classList.remove('show');
+            });
+        });
         
         // 框选状态
         let isSelecting = false;
@@ -1004,6 +1187,18 @@
             const percent = audioPlayer.currentTime / duration;
             playhead.style.left = `${percent * 100}%`;
             playhead.classList.add('active');
+            
+            // 只有在非播放状态下才处理定时器
+            if (audioPlayer.paused) {
+                // 清除之前的隐藏定时器
+                if (playheadHideTimer) {
+                    clearTimeout(playheadHideTimer);
+                }
+                // 重新启动5秒后隐藏的定时器
+                playheadHideTimer = setTimeout(() => {
+                    playhead.classList.remove('active');
+                }, 5000);
+            }
         }
 
         // 更新剪辑滑块位置
@@ -1562,17 +1757,12 @@
             playhead.classList.add('forced');
             setTimeout(() => playhead.classList.remove('forced'), 100);
             
-            // 更新播放位置红线
+            // 更新播放位置红线（会自动处理5秒后隐藏逻辑）
             updatePlayhead();
             
-            // 显示播放头
-            playhead.classList.add('active');
-            
-            // 清除之前的隐藏定时器
-            if (playheadHideTimer) {
-                clearTimeout(playheadHideTimer);
-                playheadHideTimer = null;
-            }
+            // 强制显示播放头（防止被其他元素覆盖）
+            playhead.classList.add('forced');
+            setTimeout(() => playhead.classList.remove('forced'), 100);
             
             // 切换到自由播放模式（cursor模式），可以播放到文件任意位置
             playMode = 'cursor';
@@ -1647,7 +1837,7 @@
                     updateToastProgress(toast, 50);
                     
                     // 编码 MP3
-                    const mp3Blob = await encodeMP3(trimmedBuffer);
+                    const mp3Blob = await encodeMP3(trimmedBuffer, exportBitRate);
                     
                     updateToastProgress(toast, 90);
                     
@@ -1692,8 +1882,8 @@
             }, 100);
         });
 
-        // MP3 编码 (192kbps)
-        function encodeMP3(buffer) {
+        // MP3 编码
+        function encodeMP3(buffer, bitRate = 192) {
             return new Promise((resolve, reject) => {
                 try {
                     const sampleRate = buffer.sampleRate;
@@ -1707,7 +1897,7 @@
                     }
                     
                     // 使用 lamejs 编码
-                    const mp3encoder = new lamejs.Mp3Encoder(numChannels, sampleRate, 192);
+                    const mp3encoder = new lamejs.Mp3Encoder(numChannels, sampleRate, bitRate);
                     const mp3Data = [];
                     
                     const sampleBlockSize = 1152;
