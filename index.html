@@ -29,6 +29,7 @@
             --info-border: #667eea;
             --time-editable-bg: rgba(102, 126, 234, 0.1);
             --progress-bg: #f8f9fa;
+            --wave-animation: waveMove 600s linear infinite;
         }
 
         /* 浅色模式 */
@@ -81,9 +82,8 @@
             position: relative;
         }
 
-        /* Wave 水印背景 - 45° 旋转交错排列 */
-        body::before,
-        body::after {
+        /* Wave 水印背景 */
+        body::before {
             content: '';
             position: fixed;
             width: 400%;
@@ -95,7 +95,9 @@
             pointer-events: none;
             z-index: -1;
             transform: rotate(315deg);
-            animation: waveMove 600s linear infinite;
+            animation: var(--wave-animation);
+            top: -150%;
+            left: -150%;
         }
         
         /* wave 层从左上角向右下角缓慢移动的动画 */
@@ -109,14 +111,8 @@
         }
         
         /* 浅色模式下提高 wave 可见度 */
-        body.light-mode::before,
-        body.light-mode::after {
+        body.light-mode::before {
             opacity: 0.75;
-        }
-
-        body::before {
-            top: -150%;
-            left: -150%;
         }
 
 
