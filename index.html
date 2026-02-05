@@ -14,9 +14,9 @@
 
         /* CSS 变量定义 */
         :root {
-            --bg-gradient-start: #1a1a2e;
-            --bg-gradient-mid: #16213e;
-            --bg-gradient-end: #0f3460;
+            --bg-gradient-start: #ffffff;
+            --bg-gradient-mid: #ffffff;
+            --bg-gradient-end: #ffffff;
             --container-bg: rgba(255, 255, 255, 0.95);
             --text-primary: #1a1a2e;
             --text-secondary: #495057;
@@ -33,9 +33,9 @@
 
         /* 浅色模式 */
         body.light-mode {
-            --bg-gradient-start: #e8f0f8;
-            --bg-gradient-mid: #d8e8f5;
-            --bg-gradient-end: #c8e0f2;
+            --bg-gradient-start: #ffffff;
+            --bg-gradient-mid: #ffffff;
+            --bg-gradient-end: #ffffff;
             --container-bg: #ffffff;
             --text-primary: #1a1a2e;
             --text-secondary: #495057;
@@ -91,12 +91,27 @@
             background-image: url('wave.svg');
             background-size: 2000px 1000px;
             background-repeat: repeat;
-            opacity: 0.25;
+            opacity: 0.5;
             pointer-events: none;
             z-index: -1;
-            transform: rotate(45deg);
-            background-color: #1877F2;
-            background-blend-mode: screen;
+            transform: rotate(315deg);
+            animation: waveMove 120s linear infinite;
+        }
+        
+        /* wave 层从左上角向右下角缓慢移动的动画 */
+        @keyframes waveMove {
+            0% {
+                background-position: 0 0;
+            }
+            100% {
+                background-position: 2000px 2000px;
+            }
+        }
+        
+        /* 浅色模式下提高 wave 可见度 */
+        body.light-mode::before,
+        body.light-mode::after {
+            opacity: 0.75;
         }
 
         body::before {
@@ -170,7 +185,7 @@
         .wide-mode-toggle {
             position: absolute;
             top: 20px;
-            right: 68px;
+            right: 56px;
             background: transparent;
             border: none;
             width: 48px;
@@ -1297,8 +1312,7 @@
     <div class="container">
         <button class="wide-mode-toggle" id="wideModeToggle" title="切换宽屏模式">
             <svg viewBox="0 0 24 24" id="wideModeIcon">
-                <path d="M4 6h16v12H4z" fill="none" stroke="currentColor" stroke-width="2"/>
-                <path d="M6 8h12v8H6z" fill="currentColor"/>
+                <rect x="2" y="6" width="20" height="12" fill="none" stroke="currentColor" stroke-width="2" rx="2"/>
             </svg>
         </button>
         <button class="theme-toggle" id="themeToggle" title="切换主题">
@@ -1664,8 +1678,8 @@
         
         // 宽屏/普通模式图标
         const wideModeSvgs = {
-            normal: '<path d="M4 6h16v12H4z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6 8h12v8H6z" fill="currentColor"/>',
-            wide: '<path d="M2 6h20v12H2z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 8h16v8H4z" fill="currentColor"/>'
+            normal: '<rect x="2" y="6" width="20" height="12" fill="none" stroke="currentColor" stroke-width="2" rx="2"/>',
+            wide: '<rect x="6" y="6" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" rx="2"/>'
         };
         
         wideModeToggle.addEventListener('click', () => {
