@@ -336,6 +336,10 @@
             transition: all 0.2s ease;
             opacity: 0.6;
             pointer-events: none;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: 36px;
+            box-sizing: border-box;
         }
 
         .toolbar-btn.active {
@@ -1317,6 +1321,31 @@
             color: #e2e8f0;
         }
 
+        /* 手机模式响应式样式 */
+        @media screen and (max-width: 768px) {
+            .waveform-toolbar {
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+
+            .toolbar-btn {
+                flex-shrink: 0;
+                white-space: nowrap;
+                height: 36px;
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+
+            .toolbar-divider {
+                display: none;
+            }
+
+            .toolbar-prefix-input {
+                width: 100%;
+                margin-top: 4px;
+            }
+        }
+
         .help-tip {
             background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
             border-radius: 12px;
@@ -1415,7 +1444,7 @@
                         <span>重做</span>
                     </button>
                     <div class="toolbar-divider"></div>
-                    <input type="text" class="toolbar-prefix-input" id="prefixInput" placeholder="前缀" title="导出文件名前缀（为空则使用 WaveClip）">
+                    <input type="text" class="toolbar-prefix-input" id="prefixInput" placeholder="导出前缀" title="导出文件名前缀（为空则使用 WaveClip）">
                 </div>
                 <div class="waveform-scrollbar" id="waveformScrollbar">
                     <div class="waveform-scroll-track">
