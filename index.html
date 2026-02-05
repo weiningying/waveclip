@@ -165,6 +165,49 @@
             height: 28px;
             fill: var(--text-muted);
         }
+        
+        /* 宽屏模式切换按钮 */
+        .wide-mode-toggle {
+            position: absolute;
+            top: 20px;
+            right: 68px;
+            background: transparent;
+            border: none;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0.3;
+            transition: opacity 0.2s ease;
+            z-index: 10;
+            padding: 0;
+        }
+        
+        .wide-mode-toggle:hover {
+            opacity: 0.6;
+        }
+        
+        .wide-mode-toggle svg {
+            width: 28px;
+            height: 28px;
+            fill: var(--text-muted);
+        }
+        
+        /* 宽屏模式样式 */
+        body.wide-mode .container {
+            max-width: 95vw;
+            width: 95vw;
+        }
+        
+        body.wide-mode .waveform-container {
+            height: 200px;
+        }
+        
+        body.wide-mode .waveform-timeline {
+            height: 32px;
+        }
 
         .upload-area {
             border: 3px dashed var(--border-color);
@@ -1518,6 +1561,23 @@
                         </div>
                     </div>
                 </div>
+                <div class="help-section">
+                    <h4>界面设置</h4>
+                    <div class="shortcut-list">
+                        <div class="shortcut-item">
+                            <div class="shortcut-keys">
+                                <span class="shortcut-key">宽屏</span>
+                            </div>
+                            <span class="shortcut-desc">点击右上角按钮切换宽屏/普通模式</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <div class="shortcut-keys">
+                                <span class="shortcut-key">主题</span>
+                            </div>
+                            <span class="shortcut-desc">点击右上角按钮切换浅色/深色模式</span>
+                        </div>
+                    </div>
+                </div>
                 <div class="help-tip">
                     <strong>💡 提示</strong>：所有处理在浏览器本地完成，音频不会上传到服务器。
                 </div>
@@ -1590,6 +1650,34 @@
 
         // 初始化主题
         applyTheme('auto');
+        
+        // 宽屏模式切换
+        const wideModeToggle = document.getElementById('wideModeToggle');
+        const wideModeIcon = document.getElementById('wideModeIcon');
+        let isWideMode = false;
+        
+        // 宽屏/普通模式图标
+        const wideModeSvgs = {
+            normal: '<path d="M4 6h16v12H4z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6 8h12v8H6z" fill="currentColor"/>',
+            wide: '<path d="M2 6h20v12H2z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 8h16v8H4z" fill="currentColor"/>'
+        };
+        
+        wideModeToggle.addEventListener('click', () => {
+            isWideMode = !isWideMode;
+            if (isWideMode) {
+                body.classList.add('wide-mode');
+                wideModeIcon.innerHTML = wideModeSvgs.wide;
+                wideModeToggle.title = '切换普通模式';
+            } else {
+                body.classList.remove('wide-mode');
+                wideModeIcon.innerHTML = wideModeSvgs.normal;
+                wideModeToggle.title = '切换宽屏模式';
+            }
+            // 重新绘制波形以适应新尺寸
+            setTimeout(() => {
+                resizeCanvas();
+            }, 300);
+        });
 
         // DOM 元素
         const uploadArea = document.getElementById('uploadArea');
