@@ -29,7 +29,7 @@
             --info-border: #667eea;
             --time-editable-bg: rgba(102, 126, 234, 0.1);
             --progress-bg: #f8f9fa;
-            --wave-animation: waveMove 600s linear infinite;
+            --wave-animation: waveMove 240s linear infinite;
         }
 
         /* 浅色模式 */
@@ -51,12 +51,12 @@
             --progress-bg: #f8f9fa;
         }
 
-        /* 深色模式 */
+        /* 深色模式 - 更沉浸的暗色背景 */
         body.dark-mode {
-            --bg-gradient-start: #0d1a2d;
-            --bg-gradient-mid: #122036;
-            --bg-gradient-end: #0d2847;
-            --container-bg: rgba(35, 45, 65, 0.95);
+            --bg-gradient-start: #070f1a;
+            --bg-gradient-mid: #0a1525;
+            --bg-gradient-end: #071225;
+            --container-bg: rgba(25, 35, 50, 0.98);
             --text-primary: #f0f4f8;
             --text-secondary: #c5d0e0;
             --text-muted: #a0aec0;
@@ -82,14 +82,14 @@
             position: relative;
         }
 
-        /* Wave 水印背景 */
+        /* Wave 水印背景 - 使用相对单位，视口缩放时保持视觉一致性 */
         body::before {
             content: '';
             position: fixed;
             width: 400%;
             height: 400%;
-            background-image: url('wave.svg');
-            background-size: 2000px 1000px;
+            background-image: url('wave-light.svg');
+            background-size: 100vw 50vw;
             background-repeat: repeat;
             opacity: 0.5;
             pointer-events: none;
@@ -100,25 +100,26 @@
             left: -150%;
         }
         
-        /* wave 层从左上角向右下角缓慢移动的动画 */
+        /* wave 层从左上角向右下角缓慢移动的动画 - 背景图案大小随视口变化，移动速度相对一致 */
         @keyframes waveMove {
             0% {
                 background-position: 0 0;
             }
             100% {
-                background-position: 2000px 2000px;
+                background-position: 100vw 100vw;
             }
         }
         
-        /* 浅色模式下提高 wave 可见度 */
+        /* 浅色模式下使用白底 wave */
         body.light-mode::before {
-            opacity: 0.75;
+            background-image: url('wave-light.svg');
+            opacity: 0.6;
         }
         
-        /* 深色模式下 wave 背景使用更深的蓝色 */
+        /* 深色模式下使用黑底 wave */
         body.dark-mode::before {
-            background-color: #051838;
-            opacity: 0.6;
+            background-image: url('wave-dark.svg');
+            opacity: 0.4;
         }
 
 
@@ -178,8 +179,8 @@
         }
 
         .theme-toggle svg {
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             fill: var(--text-muted);
         }
         
@@ -187,7 +188,7 @@
         .wide-mode-toggle {
             position: absolute;
             top: 20px;
-            right: 56px;
+            right: 68px;
             background: transparent;
             border: none;
             width: 48px;
@@ -207,8 +208,13 @@
         }
         
         .wide-mode-toggle svg {
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
+            fill: var(--text-muted);
+        }
+
+        /* 深色模式下宽屏按钮图标颜色 */
+        body.dark-mode .wide-mode-toggle svg {
             fill: var(--text-muted);
         }
         
@@ -386,7 +392,7 @@
         }
         
         .toolbar-prefix-input {
-            width: 80px;
+            width: 140px;
             height: 36px;
             padding: 6px 12px;
             border: 1px solid var(--border-color);
@@ -729,6 +735,12 @@
         body.dark-mode .audio-info {
             background: linear-gradient(135deg, #344054 0%, #2d3a4f 100%);
             border-color: #7c8be0;
+        }
+
+        /* 深色模式下音频播放器暗色调 */
+        body.dark-mode #audioPlayer {
+            filter: invert(1) hue-rotate(180deg);
+            opacity: 0.9;
         }
 
         body.dark-mode .audio-info p {
@@ -1193,7 +1205,7 @@
             background: var(--container-bg);
             border-radius: 20px;
             width: 90%;
-            max-width: 480px;
+            max-width: 800px;
             max-height: 80vh;
             overflow: hidden;
             box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
@@ -1226,6 +1238,13 @@
             margin: 0;
         }
 
+        .help-version {
+            color: var(--text-muted);
+            font-size: 12px;
+            margin-left: auto;
+            margin-right: 12px;
+        }
+
         .help-close {
             background: none;
             border: none;
@@ -1251,10 +1270,15 @@
             padding: 32px;
             overflow-y: auto;
             max-height: calc(80vh - 70px);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px 32px;
+            align-content: start;
         }
 
         .help-section {
-            margin-bottom: 20px;
+            margin-bottom: 0;
+            break-inside: avoid;
         }
 
         .help-section:last-child {
@@ -1384,17 +1408,27 @@
             .audio-info {
                 min-height: 80px;
             }
+
+            .help-content {
+                max-width: 480px;
+            }
+
+            .help-body {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
         }
 
         .help-tip {
             background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
             border-radius: 12px;
             padding: 16px;
-            margin-top: 20px;
+            margin-top: 0;
             font-size: 13px;
             color: var(--text-secondary);
             line-height: 1.6;
             border-left: 3px solid var(--border-color);
+            grid-column: 1 / -1;
         }
 
         /* 深色模式适配 */
@@ -1411,7 +1445,7 @@
     <div class="container">
         <button class="wide-mode-toggle" id="wideModeToggle" title="切换宽屏模式">
             <svg viewBox="0 0 24 24" id="wideModeIcon">
-                <rect x="2" y="6" width="20" height="12" fill="none" stroke="currentColor" stroke-width="2" rx="2"/>
+                <rect x="2" y="7" width="20" height="10" rx="1.5"/>
             </svg>
         </button>
         <button class="theme-toggle" id="themeToggle" title="切换主题">
@@ -1486,7 +1520,7 @@
                         <span>重做</span>
                     </button>
                     <div class="toolbar-divider"></div>
-                    <input type="text" class="toolbar-prefix-input" id="prefixInput" placeholder="导出前缀" title="导出文件名前缀（为空则使用 WaveClip）">
+                    <input type="text" class="toolbar-prefix-input" id="prefixInput" placeholder="自定义导出前缀" title="导出文件名前缀（为空则使用 WaveClip）">
                 </div>
                 <div class="waveform-scrollbar" id="waveformScrollbar">
                     <div class="waveform-scroll-track">
@@ -1572,6 +1606,7 @@
         <div class="help-content">
             <div class="help-header">
                 <h3>使用说明</h3>
+                <span class="help-version">0.0.1</span>
                 <button class="help-close" id="helpClose">&times;</button>
             </div>
             <div class="help-body">
@@ -1779,10 +1814,10 @@
         const wideModeIcon = document.getElementById('wideModeIcon');
         let isWideMode = false;
         
-        // 宽屏/普通模式图标
+        // 宽屏/普通模式图标 - 实心长方形
         const wideModeSvgs = {
-            normal: '<rect x="2" y="6" width="20" height="12" fill="none" stroke="currentColor" stroke-width="2" rx="2"/>',
-            wide: '<rect x="6" y="6" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" rx="2"/>'
+            normal: '<rect x="2" y="7" width="20" height="10" rx="1.5"/>',
+            wide: '<rect x="6" y="7" width="12" height="10" rx="1.5"/>'
         };
         
         wideModeToggle.addEventListener('click', () => {
@@ -2413,6 +2448,7 @@
         let mouseDownX = 0;
         let mouseDownY = 0;
         let hasDragged = false;
+        let justFinishedSelecting = false; // 标记刚刚完成框选，阻止点击事件
         let selectionBackup = null; // 备份原有选择范围
         const MIN_DRAG_DISTANCE = 5; // 最小拖拽距离（像素）
 
@@ -3364,6 +3400,13 @@
             selectionBackup = null;
             selectionPreview.classList.remove('active');
             selectStartTooltip.classList.remove('active');
+            
+            // 标记刚刚完成框选，阻止触发点击事件设置播放头
+            justFinishedSelecting = true;
+            setTimeout(() => {
+                justFinishedSelecting = false;
+            }, 50);
+            
             if (isMouseOverWaveform) {
                 previewLine.classList.add('active');
                 cursorTimeTooltip.classList.add('active');
@@ -3523,6 +3566,11 @@
         // 点击波形图设置播放位置
         waveformContainer.addEventListener('click', (e) => {
             if (!audioBuffer || !duration) return;
+            
+            // 如果刚刚完成框选，阻止触发点击事件（避免框选完成后松开鼠标时设置播放头）
+            if (justFinishedSelecting) {
+                return;
+            }
             
             // 中键点击不处理
             if (e.button !== 0) return;
