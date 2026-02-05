@@ -114,6 +114,12 @@
         body.light-mode::before {
             opacity: 0.75;
         }
+        
+        /* 深色模式下 wave 背景使用更深的蓝色 */
+        body.dark-mode::before {
+            background-color: #051838;
+            opacity: 0.6;
+        }
 
 
         .container {
@@ -1347,6 +1353,21 @@
                         </svg>
                         <span>全选</span>
                     </button>
+                    <button class="toolbar-btn" id="setStartBtn" title="设置范围开始为播放头位置">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                            <rect x="2" y="10" width="4" height="4" fill="#ff4444"/>
+                        </svg>
+                        <span>设起点</span>
+                    </button>
+                    <button class="toolbar-btn" id="setEndBtn" title="设置范围结束为播放头位置">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                            <rect x="18" y="10" width="4" height="4" fill="#ff4444"/>
+                        </svg>
+                        <span>设终点</span>
+                    </button>
+                    <div class="toolbar-divider"></div>
                     <button class="toolbar-btn" id="cutBtn" title="删除选中范围 (Del)">
                         <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
                             <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/>
@@ -1364,21 +1385,6 @@
                             <path d="M11.5 8c2.65 0 5.05.99 6.9 2.6L22 7v9h-9l3.62-3.62c-1.39-1.16-3.16-1.88-5.12-1.88-3.54 0-6.55 2.31-7.6 5.5l-2.37-.78C2.92 11.03 6.85 8 11.5 8z"/>
                         </svg>
                         <span>重做</span>
-                    </button>
-                    <div class="toolbar-divider"></div>
-                    <button class="toolbar-btn" id="setStartBtn" title="设置范围开始为播放头位置">
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
-                            <rect x="2" y="10" width="4" height="4" fill="#ff4444"/>
-                        </svg>
-                        <span>设起点</span>
-                    </button>
-                    <button class="toolbar-btn" id="setEndBtn" title="设置范围结束为播放头位置">
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
-                            <rect x="18" y="10" width="4" height="4" fill="#ff4444"/>
-                        </svg>
-                        <span>设终点</span>
                     </button>
                 </div>
                 <div class="waveform-scrollbar" id="waveformScrollbar">
