@@ -301,15 +301,19 @@
             pointer-events: none;
             z-index: 15;
             box-shadow: 0 0 6px rgba(255, 0, 0, 0.8);
-            display: none;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
         }
 
         .playhead.active {
-            display: block;
+            opacity: 1;
+            visibility: visible;
         }
         
         .playhead.forced {
-            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
         }
 
         .preview-line {
@@ -645,7 +649,7 @@
         <div class="upload-area" id="uploadArea">
             <input type="file" id="audioInput" accept="audio/*">
             <div class="upload-icon">📁</div>
-            <div class="upload-text">点击或拖拽上传音频文件</div>
+            <div class="upload-text">点击或拖拽打开本地音乐文件</div>
         </div>
 
         <div class="audio-section" id="audioSection">
@@ -785,7 +789,9 @@
         
         // 鼠标状态追踪
         let isMouseOverWaveform = false;
+        let isMouseOverPlayer = false;
         let mouseXPercent = 0;
+        let playheadHideTimer = null; // 播放头自动隐藏定时器
         
         // 框选状态
         let isSelecting = false;
@@ -1184,12 +1190,16 @@
         // 播放按钮
         playBtn.addEventListener('click', () => {
             if (audioPlayer.paused) {
-                // 判断是否从鼠标位置播放（鼠标在波形图上）
+                // 判断是否从鼠标位置播放（鼠标在波形图或播放器上）
                 if (isMouseOverWaveform) {
                     // 从鼠标位置播放到文件结尾
                     playMode = 'cursor';
                     const mouseTime = mouseXPercent * duration;
                     audioPlayer.currentTime = mouseTime;
+                } else if (isMouseOverPlayer) {
+                    // 鼠标在播放器上：从当前播放位置播放到文件结尾
+                    playMode = 'cursor';
+                    // 保持当前 currentTime，从这里开始播放
                 } else {
                     // 从选中范围开始播放
                     playMode = 'selection';
@@ -1202,6 +1212,11 @@
                 audioPlayer.play();
                 playBtn.textContent = '⏸ 暂停';
                 playhead.classList.add('active');
+                // 清除隐藏定时器
+                if (playheadHideTimer) {
+                    clearTimeout(playheadHideTimer);
+                    playheadHideTimer = null;
+                }
             } else {
                 audioPlayer.pause();
                 updatePlayBtnText();
@@ -1238,12 +1253,24 @@
 
         audioPlayer.addEventListener('pause', () => {
             updatePlayBtnText();
-            // 播放暂停时保持播放头显示
+            // 播放暂停5秒后自动隐藏播放头
+            if (playheadHideTimer) {
+                clearTimeout(playheadHideTimer);
+            }
+            playheadHideTimer = setTimeout(() => {
+                playhead.classList.remove('active');
+            }, 5000);
         });
         
         audioPlayer.addEventListener('ended', () => {
             updatePlayBtnText();
-            // 播放结束时保持播放头显示
+            // 播放结束5秒后自动隐藏播放头
+            if (playheadHideTimer) {
+                clearTimeout(playheadHideTimer);
+            }
+            playheadHideTimer = setTimeout(() => {
+                playhead.classList.remove('active');
+            }, 5000);
         });
 
         // 空格键控制播放/暂停
@@ -1273,6 +1300,17 @@
             isMouseOverWaveform = false;
             previewLine.classList.remove('active');
             cursorTimeTooltip.classList.remove('active');
+            updatePlayBtnText();
+        });
+
+        // 鼠标在播放器上时也执行光标处播放逻辑
+        audioPlayer.addEventListener('mouseenter', () => {
+            isMouseOverPlayer = true;
+            updatePlayBtnText();
+        });
+
+        audioPlayer.addEventListener('mouseleave', () => {
+            isMouseOverPlayer = false;
             updatePlayBtnText();
         });
         
@@ -1433,6 +1471,11 @@
             }
         });
 
+        // 禁用波形编辑区的右键菜单
+        waveformContainer.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+
         // 框选功能：鼠标松开完成选择
         document.addEventListener('mouseup', (e) => {
             if (!isSelecting || !audioBuffer || !duration) return;
@@ -1488,7 +1531,7 @@
         function updatePlayBtnText() {
             if (!audioBuffer) return;
             if (audioPlayer.paused) {
-                if (isMouseOverWaveform) {
+                if (isMouseOverWaveform || isMouseOverPlayer) {
                     playBtn.textContent = '▶ 从光标处播放';
                 } else {
                     playBtn.textContent = '▶ 播放选中范围';
@@ -1498,12 +1541,9 @@
             }
         }
 
-        // 点击波形图设置播放位置（仅在播放中有效）
+        // 点击波形图设置播放位置
         waveformContainer.addEventListener('click', (e) => {
             if (!audioBuffer || !duration) return;
-            
-            // 仅在播放中时点击才移动播放头
-            if (audioPlayer.paused) return;
             
             // 如果点击的是控制杆本身（不是子元素），不处理（留给拖拽逻辑）
             if (e.target.classList.contains('trim-slider')) {
@@ -1524,6 +1564,15 @@
             
             // 更新播放位置红线
             updatePlayhead();
+            
+            // 显示播放头
+            playhead.classList.add('active');
+            
+            // 清除之前的隐藏定时器
+            if (playheadHideTimer) {
+                clearTimeout(playheadHideTimer);
+                playheadHideTimer = null;
+            }
             
             // 切换到自由播放模式（cursor模式），可以播放到文件任意位置
             playMode = 'cursor';
