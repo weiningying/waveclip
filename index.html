@@ -161,6 +161,19 @@
             border-color: #764ba2;
         }
 
+        .upload-area.compact {
+            padding: 20px 40px;
+        }
+
+        .upload-area.compact .upload-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .upload-area.compact .upload-text {
+            font-size: 14px;
+        }
+
         .upload-area input {
             display: none;
         }
@@ -2047,6 +2060,9 @@
             endTimeEl.textContent = formatTime(endTime);
             
             audioSection.classList.add('active');
+            
+            // 减小上传区域高度
+            uploadArea.classList.add('compact');
             
             // 等待 DOM 更新后再绘制波形
             setTimeout(() => {
