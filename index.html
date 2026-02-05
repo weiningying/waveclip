@@ -358,6 +358,46 @@
             opacity: 0.3;
             margin: 0 4px;
         }
+        
+        .toolbar-prefix {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 8px;
+        }
+        
+        .toolbar-prefix label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .toolbar-prefix input {
+            width: 80px;
+            height: 26px;
+            padding: 0 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--container-bg);
+            color: var(--text-primary);
+            font-size: 12px;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+        
+        .toolbar-prefix input:focus {
+            border-color: #667eea;
+        }
+        
+        .toolbar-prefix input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.6;
+        }
+        
+        .toolbar-prefix input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
 
         .waveform-container {
             position: relative;
@@ -1386,6 +1426,11 @@
                         </svg>
                         <span>重做</span>
                     </button>
+                    <div class="toolbar-divider"></div>
+                    <div class="toolbar-prefix">
+                        <label for="prefixInput">前缀</label>
+                        <input type="text" id="prefixInput" placeholder="WaveClip" title="导出文件名前缀">
+                    </div>
                 </div>
                 <div class="waveform-scrollbar" id="waveformScrollbar">
                     <div class="waveform-scroll-track">
@@ -1732,6 +1777,7 @@
         const selectAllBtn = document.getElementById('selectAllBtn');
         const setStartBtn = document.getElementById('setStartBtn');
         const setEndBtn = document.getElementById('setEndBtn');
+        const prefixInput = document.getElementById('prefixInput');
         const progressContainer = document.getElementById('progressContainer');
         const progressFill = document.getElementById('progressFill');
         const progressText = document.getElementById('progressText');
@@ -2148,9 +2194,11 @@
             if (audioBuffer && duration) {
                 setStartBtn.classList.add('active');
                 setEndBtn.classList.add('active');
+                prefixInput.disabled = false;
             } else {
                 setStartBtn.classList.remove('active');
                 setEndBtn.classList.remove('active');
+                prefixInput.disabled = true;
             }
         }
 
@@ -3527,7 +3575,9 @@
                     const url = URL.createObjectURL(mp3Blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = `WaveClip-${fileName.textContent.replace(/\.[^.]+$/, '')}.mp3`;
+                    // 获取前缀（为空则使用默认 WaveClip）
+                    const prefix = prefixInput.value.trim() || 'WaveClip';
+                    a.download = `${prefix}-${fileName.textContent.replace(/\.[^.]+$/, '')}.mp3`;
                     a.click();
                     URL.revokeObjectURL(url);
                     
