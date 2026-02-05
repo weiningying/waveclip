@@ -87,6 +87,7 @@
             padding: 40px;
             width: 100%;
             max-width: 1200px;
+            min-height: 400px;
             box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(10px);
             transition: background 0.3s ease;
@@ -204,12 +205,52 @@
             font-weight: 600;
         }
 
+        .waveform-wrapper {
+            margin-bottom: 20px;
+        }
+
+        .waveform-toolbar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+            padding: 0 4px;
+        }
+
+        .toolbar-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--info-bg-start);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .toolbar-btn.active {
+            opacity: 1;
+            pointer-events: auto;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .toolbar-btn.active:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
         .waveform-container {
             position: relative;
             height: 160px;
             background: #0d1117;
             border-radius: 12px;
-            margin-bottom: 20px;
             overflow: hidden;
             box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
             border: 1px solid #30363d;
@@ -627,6 +668,19 @@
             color: #a0aec0;
         }
 
+        /* 深色模式下工具栏按钮 */
+        body.dark-mode .toolbar-btn {
+            background: #2a3548;
+            border-color: rgba(124, 139, 224, 0.3);
+            color: #c5d0e0;
+        }
+
+        body.dark-mode .toolbar-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+
         .progress-container {
             display: none;
             margin-top: 25px;
@@ -766,8 +820,8 @@
         /* 帮助按钮 - 与主题切换按钮风格一致 */
         .help-btn {
             position: absolute;
-            bottom: 20px;
-            right: 20px;
+            top: 20px;
+            left: 20px;
             background: transparent;
             border: none;
             width: 48px;
@@ -889,7 +943,7 @@
         .help-section h4 {
             color: var(--border-color);
             font-size: 14px;
-            margin: 0 0 8px 0;
+            margin: 0 0 12px 0;
         }
 
         .help-section p {
@@ -909,6 +963,63 @@
 
         .help-section li {
             margin: 0;
+        }
+
+        /* 快捷键列表 */
+        .shortcut-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .shortcut-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .shortcut-keys {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+            min-width: 100px;
+        }
+
+        .shortcut-key {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            height: 28px;
+            padding: 0 8px;
+            background: linear-gradient(180deg, #f5f5f5 0%, #e0e0e0 100%);
+            border: 1px solid #bbb;
+            border-radius: 6px;
+            box-shadow: 0 2px 0 #999, 0 3px 3px rgba(0,0,0,0.1);
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 12px;
+            font-weight: 600;
+            color: #333;
+            text-transform: uppercase;
+        }
+
+        .shortcut-key.modifier {
+            min-width: 44px;
+        }
+
+        .shortcut-desc {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* 深色模式快捷键 */
+        body.dark-mode .shortcut-key {
+            background: linear-gradient(180deg, #3a4555 0%, #2a3548 100%);
+            border-color: #4a5568;
+            box-shadow: 0 2px 0 #1a202c, 0 3px 3px rgba(0,0,0,0.3);
+            color: #e2e8f0;
         }
 
         .help-tip {
@@ -955,16 +1066,38 @@
                 <p>时长: <span id="duration">-</span> │ 大小: <span id="fileSize">-</span> │ 比特率: <span id="bitRate">-</span></p>
             </div>
 
-            <div class="waveform-container" id="waveformContainer">
-                <canvas id="waveform"></canvas>
-                <div class="trim-slider start" id="startSlider"></div>
-                <div class="trim-slider end" id="endSlider"></div>
-                <div class="trim-area" id="trimArea"></div>
-                <div class="playhead" id="playhead"></div>
-                <div class="preview-line" id="previewLine"></div>
-                <div class="selection-preview" id="selectionPreview"></div>
-                <div class="cursor-time-tooltip" id="cursorTimeTooltip">0:00.00</div>
-                <div class="cursor-time-tooltip" id="selectStartTooltip">0:00.00</div>
+            <div class="waveform-wrapper">
+                <div class="waveform-toolbar">
+                    <button class="toolbar-btn" id="cutBtn" title="删除选中范围 (Del)">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                            <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/>
+                        </svg>
+                        <span>删除选区</span>
+                    </button>
+                    <button class="toolbar-btn" id="undoBtn" title="撤销上次操作 (Ctrl+Z)">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                            <path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/>
+                        </svg>
+                        <span>撤销</span>
+                    </button>
+                    <button class="toolbar-btn" id="redoBtn" title="重做上次操作 (Ctrl+Y)">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                            <path d="M11.5 8c2.65 0 5.05.99 6.9 2.6L22 7v9h-9l3.62-3.62c-1.39-1.16-3.16-1.88-5.12-1.88-3.54 0-6.55 2.31-7.6 5.5l-2.37-.78C2.92 11.03 6.85 8 11.5 8z"/>
+                        </svg>
+                        <span>重做</span>
+                    </button>
+                </div>
+                <div class="waveform-container" id="waveformContainer">
+                    <canvas id="waveform"></canvas>
+                    <div class="trim-slider start" id="startSlider"></div>
+                    <div class="trim-slider end" id="endSlider"></div>
+                    <div class="trim-area" id="trimArea"></div>
+                    <div class="playhead" id="playhead"></div>
+                    <div class="preview-line" id="previewLine"></div>
+                    <div class="selection-preview" id="selectionPreview"></div>
+                    <div class="cursor-time-tooltip" id="cursorTimeTooltip">0:00.00</div>
+                    <div class="cursor-time-tooltip" id="selectStartTooltip">0:00.00</div>
+                </div>
             </div>
 
             <div class="time-display">
@@ -1021,33 +1154,77 @@
             </div>
             <div class="help-body">
                 <div class="help-section">
-                    <h4>1. 导入音频</h4>
-                    <p>点击或拖拽音频文件到上传区域。支持 MP3、WAV 等常见格式。</p>
+                    <h4>播放控制</h4>
+                    <div class="shortcut-list">
+                        <div class="shortcut-item">
+                            <div class="shortcut-keys">
+                                <span class="shortcut-key">空格</span>
+                            </div>
+                            <span class="shortcut-desc">播放 / 暂停</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <div class="shortcut-keys">
+                                <span class="shortcut-key">点击</span>
+                            </div>
+                            <span class="shortcut-desc">波形图跳转播放位置</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="help-section">
-                    <h4>2. 选择剪辑范围</h4>
-                    <ul>
-                        <li><strong>拖动红色控制杆</strong>：调整开始和结束位置</li>
-                        <li><strong>鼠标框选</strong>：在波形图上按住左键拖动选择范围</li>
-                        <li><strong>精确输入</strong>：点击开始/结束时间直接编辑</li>
-                    </ul>
+                    <h4>编辑操作</h4>
+                    <div class="shortcut-list">
+                        <div class="shortcut-item">
+                            <div class="shortcut-keys">
+                                <span class="shortcut-key">Del</span>
+                            </div>
+                            <span class="shortcut-desc">删除选中的音频片段</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <div class="shortcut-keys">
+                                <span class="shortcut-key modifier">Ctrl</span>
+                                <span>+</span>
+                                <span class="shortcut-key">Z</span>
+                            </div>
+                            <span class="shortcut-desc">撤销上次操作</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <div class="shortcut-keys">
+                                <span class="shortcut-key modifier">Ctrl</span>
+                                <span>+</span>
+                                <span class="shortcut-key">Y</span>
+                            </div>
+                            <span class="shortcut-desc">重做上次操作</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <div class="shortcut-keys">
+                                <span class="shortcut-key">Esc</span>
+                            </div>
+                            <span class="shortcut-desc">取消框选 / 关闭弹窗</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="help-section">
-                    <h4>3. 预览播放</h4>
-                    <ul>
-                        <li>鼠标悬停在波形图上，按播放按钮从光标处播放</li>
-                        <li>播放中点击波形图可跳转到任意位置</li>
-                        <li><strong>空格键</strong>：快捷播放/暂停</li>
-                    </ul>
-                </div>
-                <div class="help-section">
-                    <h4>4. 导出音频</h4>
-                    <p>点击"导出 MP3"下载剪辑后的音频。可选码率：</p>
-                    <ul>
-                        <li>128 kbps - 普通品质</li>
-                        <li>192 kbps - 标准品质（推荐）</li>
-                        <li>320 kbps - 高品质</li>
-                    </ul>
+                    <h4>选区操作</h4>
+                    <div class="shortcut-list">
+                        <div class="shortcut-item">
+                            <div class="shortcut-keys">
+                                <span class="shortcut-key">拖拽</span>
+                            </div>
+                            <span class="shortcut-desc">拖动红色控制杆调整范围</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <div class="shortcut-keys">
+                                <span class="shortcut-key">框选</span>
+                            </div>
+                            <span class="shortcut-desc">鼠标左键拖动框选音频区域</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <div class="shortcut-keys">
+                                <span class="shortcut-key">双击</span>
+                            </div>
+                            <span class="shortcut-desc">左/右控制杆快速设置到起点/终点</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="help-tip">
                     <strong>💡 提示</strong>：所有处理在浏览器本地完成，音频不会上传到服务器。
@@ -1141,6 +1318,9 @@
         const exportBtn = document.getElementById('exportBtn');
         const exportArrow = document.getElementById('exportArrow');
         const exportMenu = document.getElementById('exportMenu');
+        const cutBtn = document.getElementById('cutBtn');
+        const undoBtn = document.getElementById('undoBtn');
+        const redoBtn = document.getElementById('redoBtn');
         const progressContainer = document.getElementById('progressContainer');
         const progressFill = document.getElementById('progressFill');
         const progressText = document.getElementById('progressText');
@@ -1164,6 +1344,184 @@
         
         // 导出设置
         let exportBitRate = 192; // 默认导出码率 192kbps
+        
+        // 历史记录栈（用于撤销）
+        const historyStack = [];
+        const redoStack = [];
+        const MAX_HISTORY_SIZE = 10;
+        
+        // 保存当前状态到历史记录
+        function saveState() {
+            if (!audioBuffer) return;
+            
+            // 复制当前音频缓冲区
+            const numChannels = audioBuffer.numberOfChannels;
+            const sampleRate = audioBuffer.sampleRate;
+            const newBuffer = audioContext.createBuffer(numChannels, audioBuffer.length, sampleRate);
+            
+            for (let ch = 0; ch < numChannels; ch++) {
+                const oldData = audioBuffer.getChannelData(ch);
+                const newData = newBuffer.getChannelData(ch);
+                newData.set(oldData);
+            }
+            
+            // 保存状态
+            historyStack.push({
+                audioBuffer: newBuffer,
+                duration: duration,
+                startTime: startTime,
+                endTime: endTime
+            });
+            
+            // 限制历史记录大小
+            if (historyStack.length > MAX_HISTORY_SIZE) {
+                historyStack.shift();
+            }
+            
+            // 执行新操作时清空重做栈
+            redoStack.length = 0;
+            updateHistoryButtonState();
+        }
+        
+        // 更新历史按钮状态
+        function updateHistoryButtonState() {
+            if (historyStack.length > 0) {
+                undoBtn.classList.add('active');
+            } else {
+                undoBtn.classList.remove('active');
+            }
+            
+            if (redoStack.length > 0) {
+                redoBtn.classList.add('active');
+            } else {
+                redoBtn.classList.remove('active');
+            }
+        }
+        
+        // 撤销功能
+        function undo() {
+            if (historyStack.length === 0) return;
+            
+            // 保存当前状态到重做栈
+            const numChannels = audioBuffer.numberOfChannels;
+            const sampleRate = audioBuffer.sampleRate;
+            const currentBuffer = audioContext.createBuffer(numChannels, audioBuffer.length, sampleRate);
+            for (let ch = 0; ch < numChannels; ch++) {
+                currentBuffer.getChannelData(ch).set(audioBuffer.getChannelData(ch));
+            }
+            redoStack.push({
+                audioBuffer: currentBuffer,
+                duration: duration,
+                startTime: startTime,
+                endTime: endTime
+            });
+            if (redoStack.length > MAX_HISTORY_SIZE) {
+                redoStack.shift();
+            }
+            
+            // 恢复上次状态
+            const state = historyStack.pop();
+            audioBuffer = state.audioBuffer;
+            duration = state.duration;
+            startTime = state.startTime;
+            endTime = state.endTime;
+            
+            // 更新显示
+            durationEl.textContent = formatTime(duration);
+            startTimeEl.textContent = formatTime(startTime);
+            endTimeEl.textContent = formatTime(endTime);
+            
+            // 更新音频播放器
+            const newBlob = bufferToWave(audioBuffer, 0, audioBuffer.length);
+            const url = URL.createObjectURL(newBlob);
+            audioPlayer.src = url;
+            
+            // 重绘波形图
+            drawWaveform();
+            updateTrimUI();
+            
+            updateHistoryButtonState();
+            
+            showToast('撤销成功', '已恢复到上次状态', 'success', 2000);
+        }
+        
+        // 重做功能
+        function redo() {
+            if (redoStack.length === 0) return;
+            
+            // 保存当前状态到撤销栈
+            const numChannels = audioBuffer.numberOfChannels;
+            const sampleRate = audioBuffer.sampleRate;
+            const currentBuffer = audioContext.createBuffer(numChannels, audioBuffer.length, sampleRate);
+            for (let ch = 0; ch < numChannels; ch++) {
+                currentBuffer.getChannelData(ch).set(audioBuffer.getChannelData(ch));
+            }
+            historyStack.push({
+                audioBuffer: currentBuffer,
+                duration: duration,
+                startTime: startTime,
+                endTime: endTime
+            });
+            if (historyStack.length > MAX_HISTORY_SIZE) {
+                historyStack.shift();
+            }
+            
+            // 恢复下次状态
+            const state = redoStack.pop();
+            audioBuffer = state.audioBuffer;
+            duration = state.duration;
+            startTime = state.startTime;
+            endTime = state.endTime;
+            
+            // 更新显示
+            durationEl.textContent = formatTime(duration);
+            startTimeEl.textContent = formatTime(startTime);
+            endTimeEl.textContent = formatTime(endTime);
+            
+            // 更新音频播放器
+            const newBlob = bufferToWave(audioBuffer, 0, audioBuffer.length);
+            const url = URL.createObjectURL(newBlob);
+            audioPlayer.src = url;
+            
+            // 重绘波形图
+            drawWaveform();
+            updateTrimUI();
+            
+            updateHistoryButtonState();
+            
+            showToast('重做成功', '已恢复到下次状态', 'success', 2000);
+        }
+        
+        // 撤销按钮点击
+        undoBtn.addEventListener('click', undo);
+        
+        // 重做按钮点击
+        redoBtn.addEventListener('click', redo);
+        
+        // 键盘快捷键 Ctrl+Z 撤销 / Ctrl+Y 重做 / Delete 删除选区
+        document.addEventListener('keydown', (e) => {
+            // 避免在输入框等可编辑元素中触发
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {
+                return;
+            }
+            // Ctrl+Z 撤销
+            if ((e.ctrlKey || e.metaKey) && e.code === 'KeyZ') {
+                e.preventDefault();
+                undo();
+            }
+            // Ctrl+Y 重做
+            if ((e.ctrlKey || e.metaKey) && e.code === 'KeyY') {
+                e.preventDefault();
+                redo();
+            }
+            // Delete 删除选区
+            if (e.code === 'Delete' || e.code === 'Backspace') {
+                e.preventDefault();
+                if (cutBtn.classList.contains('active')) {
+                    cutBtn.click();
+                }
+            }
+        });
         
         // 下拉菜单控制
         exportArrow.addEventListener('click', (e) => {
@@ -1189,6 +1547,144 @@
                 exportMenu.classList.remove('show');
             });
         });
+
+        // 更新剪辑按钮状态
+        function updateCutButtonState() {
+            if (!audioBuffer || !duration) {
+                cutBtn.classList.remove('active');
+                return;
+            }
+            // 当选中范围不是全部音频时，激活删除按钮
+            const hasSelection = startTime > 0 || endTime < duration;
+            if (hasSelection) {
+                cutBtn.classList.add('active');
+            } else {
+                cutBtn.classList.remove('active');
+            }
+        }
+
+        // 监听选区变化
+        const originalUpdateTrimUI = updateTrimUI;
+        updateTrimUI = function() {
+            originalUpdateTrimUI();
+            updateCutButtonState();
+        };
+
+        // 删除选中范围
+        cutBtn.addEventListener('click', () => {
+            if (!audioBuffer || !duration) return;
+            if (!cutBtn.classList.contains('active')) return;
+
+            // 保存当前状态到历史记录
+            saveState();
+
+            const sampleRate = audioBuffer.sampleRate;
+            const numChannels = audioBuffer.numberOfChannels;
+            
+            // 计算删除范围的样本点
+            const startSample = Math.floor(startTime * sampleRate);
+            const endSample = Math.floor(endTime * sampleRate);
+            const totalSamples = audioBuffer.length;
+            
+            // 保留头部分和尾部分
+            const headSamples = startSample;
+            const tailSamples = totalSamples - endSample;
+            const newLength = headSamples + tailSamples;
+            
+            // 创建新的音频缓冲区
+            const newBuffer = audioContext.createBuffer(numChannels, newLength, sampleRate);
+            
+            for (let ch = 0; ch < numChannels; ch++) {
+                const oldData = audioBuffer.getChannelData(ch);
+                const newData = newBuffer.getChannelData(ch);
+                
+                // 复制头部分
+                for (let i = 0; i < headSamples; i++) {
+                    newData[i] = oldData[i];
+                }
+                
+                // 复制尾部分
+                for (let i = 0; i < tailSamples; i++) {
+                    newData[headSamples + i] = oldData[endSample + i];
+                }
+            }
+            
+            // 更新音频缓冲区
+            audioBuffer = newBuffer;
+            duration = newBuffer.duration;
+            
+            // 重置选择范围到全部
+            startTime = 0;
+            endTime = duration;
+            
+            // 更新显示
+            durationEl.textContent = formatTime(duration);
+            startTimeEl.textContent = formatTime(startTime);
+            endTimeEl.textContent = formatTime(endTime);
+            
+            // 更新音频播放器
+            const newBlob = bufferToWave(audioBuffer, 0, audioBuffer.length);
+            const url = URL.createObjectURL(newBlob);
+            audioPlayer.src = url;
+            
+            // 重绘波形图
+            drawWaveform();
+            updateTrimUI();
+            
+            // 显示成功提示
+            showToast('删除成功', `已删除选中的音频片段，当前时长: ${formatTime(duration)}`, 'success', 3000);
+        });
+
+        // 将 AudioBuffer 转换为 WAV Blob
+        function bufferToWave(buffer, start, end) {
+            const numChannels = buffer.numberOfChannels;
+            const sampleRate = buffer.sampleRate;
+            const format = 1; // PCM
+            const bitDepth = 16;
+            
+            const length = end - start;
+            const bytesPerSample = bitDepth / 8;
+            const blockAlign = numChannels * bytesPerSample;
+            
+            const dataLength = length * blockAlign;
+            const bufferLength = 44 + dataLength;
+            
+            const arrayBuffer = new ArrayBuffer(bufferLength);
+            const view = new DataView(arrayBuffer);
+            
+            // 写入 WAV 头部
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, 36 + dataLength, true);
+            writeString(view, 8, 'WAVE');
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, format, true);
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * blockAlign, true);
+            view.setUint16(32, blockAlign, true);
+            view.setUint16(34, bitDepth, true);
+            writeString(view, 36, 'data');
+            view.setUint32(40, dataLength, true);
+            
+            // 写入音频数据
+            let offset = 44;
+            for (let i = start; i < end; i++) {
+                for (let ch = 0; ch < numChannels; ch++) {
+                    const sample = Math.max(-1, Math.min(1, buffer.getChannelData(ch)[i]));
+                    view.setInt16(offset, sample * 0x7FFF, true);
+                    offset += 2;
+                }
+            }
+            
+            return new Blob([arrayBuffer], { type: 'audio/wav' });
+        }
+        
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        }
 
         // 帮助按钮交互
         helpBtn.addEventListener('click', () => {
@@ -1307,6 +1803,11 @@
             
             // 标记文件已加载
             hasFileLoaded = true;
+            
+            // 清空历史记录（新文件加载后不能撤销到之前的文件）
+            historyStack.length = 0;
+            redoStack.length = 0;
+            updateHistoryButtonState();
         }
 
         // 绘制波形
