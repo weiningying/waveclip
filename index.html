@@ -11,52 +11,151 @@
             box-sizing: border-box;
         }
 
+        /* CSS 变量定义 */
+        :root {
+            --bg-gradient-start: #1a1a2e;
+            --bg-gradient-mid: #16213e;
+            --bg-gradient-end: #0f3460;
+            --container-bg: rgba(255, 255, 255, 0.95);
+            --text-primary: #1a1a2e;
+            --text-secondary: #495057;
+            --text-muted: #666;
+            --border-color: #667eea;
+            --upload-bg-start: #f8f9ff;
+            --upload-bg-end: #f0f4ff;
+            --info-bg-start: #f8f9fa;
+            --info-bg-end: #e9ecef;
+            --info-border: #667eea;
+            --time-editable-bg: rgba(102, 126, 234, 0.1);
+            --progress-bg: #f8f9fa;
+        }
+
+        /* 浅色模式 */
+        body.light-mode {
+            --bg-gradient-start: #e8e8f0;
+            --bg-gradient-mid: #d0d4e8;
+            --bg-gradient-end: #c5d0e8;
+            --container-bg: #ffffff;
+            --text-primary: #1a1a2e;
+            --text-secondary: #495057;
+            --text-muted: #666;
+            --border-color: #667eea;
+            --upload-bg-start: #f8f9ff;
+            --upload-bg-end: #f0f4ff;
+            --info-bg-start: #f8f9fa;
+            --info-bg-end: #e9ecef;
+            --info-border: #667eea;
+            --time-editable-bg: rgba(102, 126, 234, 0.1);
+            --progress-bg: #f8f9fa;
+        }
+
+        /* 深色模式 */
+        body.dark-mode {
+            --bg-gradient-start: #0d1a2d;
+            --bg-gradient-mid: #122036;
+            --bg-gradient-end: #0d2847;
+            --container-bg: rgba(35, 45, 65, 0.95);
+            --text-primary: #f0f4f8;
+            --text-secondary: #c5d0e0;
+            --text-muted: #a0aec0;
+            --border-color: #7c8be0;
+            --upload-bg-start: #253047;
+            --upload-bg-end: #1e2a3f;
+            --info-bg-start: #2a3548;
+            --info-bg-end: #232d3f;
+            --info-border: #7c8be0;
+            --time-editable-bg: rgba(124, 139, 224, 0.25);
+            --progress-bg: #2a3548;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-mid) 50%, var(--bg-gradient-end) 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            transition: background 0.3s ease;
         }
 
         .container {
-            background: rgba(255, 255, 255, 0.95);
+            background: var(--container-bg);
             border-radius: 20px;
             padding: 40px;
             width: 100%;
             max-width: 1200px;
             box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(10px);
+            transition: background 0.3s ease;
         }
 
         h1 {
             text-align: center;
-            color: #1a1a2e;
+            color: var(--text-primary);
             margin-bottom: 30px;
             font-size: 28px;
             font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: color 0.3s ease;
+        }
+
+        .logo-svg {
+            width: 48px;
+            height: 24px;
+            fill: #667eea;
+        }
+
+        /* 主题切换按钮 */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--container-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        body.light-mode .theme-toggle {
+            background: #fff;
         }
 
         .upload-area {
-            border: 3px dashed #667eea;
+            border: 3px dashed var(--border-color);
             border-radius: 15px;
             padding: 50px 40px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+            background: linear-gradient(135deg, var(--upload-bg-start) 0%, var(--upload-bg-end) 100%);
         }
 
         .upload-area:hover {
-            background: linear-gradient(135deg, #f0f4ff 0%, #e8eeff 100%);
+            background: linear-gradient(135deg, var(--upload-bg-end) 0%, var(--upload-bg-start) 100%);
             border-color: #764ba2;
             transform: translateY(-2px);
         }
 
         .upload-area.dragover {
-            background: linear-gradient(135deg, #e7e3f9 0%, #d4d0f5 100%);
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
             border-color: #764ba2;
         }
 
@@ -70,7 +169,7 @@
         }
 
         .upload-text {
-            color: #666;
+            color: var(--text-muted);
             font-size: 16px;
         }
 
@@ -84,22 +183,22 @@
         }
 
         .audio-info {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            background: linear-gradient(135deg, var(--info-bg-start) 0%, var(--info-bg-end) 100%);
             padding: 18px 20px;
             border-radius: 12px;
             margin-bottom: 20px;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid var(--info-border);
         }
 
         .audio-info p {
-            color: #495057;
+            color: var(--text-secondary);
             font-size: 14px;
             margin: 6px 0;
             font-weight: 500;
         }
 
         .audio-info span {
-            color: #212529;
+            color: var(--text-primary);
             font-weight: 600;
         }
 
@@ -236,13 +335,13 @@
             justify-content: space-between;
             margin-bottom: 20px;
             font-size: 15px;
-            color: #495057;
+            color: var(--text-secondary);
             font-weight: 600;
             padding: 0 5px;
         }
 
         .time-display span span {
-            color: #667eea;
+            color: var(--border-color);
             font-family: 'SF Mono', Monaco, monospace;
         }
 
@@ -288,17 +387,18 @@
             min-width: 60px;
             display: inline-block;
             text-align: center;
+            color: var(--border-color);
         }
 
         .time-editable:hover {
-            background: rgba(102, 126, 234, 0.1);
-            border-color: #667eea;
+            background: var(--time-editable-bg);
+            border-color: var(--border-color);
         }
 
         .time-editable:focus {
             outline: none;
-            background: white;
-            border-color: #667eea;
+            background: var(--container-bg);
+            border-color: var(--border-color);
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
         }
 
@@ -336,15 +436,56 @@
         }
 
         .btn-secondary {
-            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
-            color: #495057;
+            background: linear-gradient(135deg, var(--info-bg-end) 0%, var(--info-bg-start) 100%);
+            color: var(--text-secondary);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
         }
 
         .btn-secondary:hover {
-            background: linear-gradient(135deg, #dee2e6 0%, #ced4da 100%);
+            background: linear-gradient(135deg, var(--info-bg-start) 0%, var(--info-bg-end) 100%);
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        /* 深色模式下按钮增强对比度 */
+        body.dark-mode .btn-secondary {
+            background: linear-gradient(135deg, #3a4660 0%, #323e56 100%);
+            color: #e2e8f0;
+            border: 1px solid rgba(124, 139, 224, 0.3);
+        }
+
+        body.dark-mode .btn-secondary:hover {
+            background: linear-gradient(135deg, #465470 0%, #3a4660 100%);
+            border-color: rgba(124, 139, 224, 0.5);
+        }
+
+        /* 深色模式下文件信息栏增强 */
+        body.dark-mode .audio-info {
+            background: linear-gradient(135deg, #344054 0%, #2d3a4f 100%);
+            border-left-color: #8b9dc3;
+        }
+
+        body.dark-mode .audio-info p {
+            color: #d1d5db;
+        }
+
+        body.dark-mode .audio-info span {
+            color: #ffffff;
+        }
+
+        /* 深色模式下上传框 - 不明显的渐变 */
+        body.dark-mode .upload-area {
+            background: linear-gradient(135deg, #2a3447 0%, #232b3d 50%, #1e2535 100%);
+            border-color: rgba(124, 139, 224, 0.4);
+        }
+
+        body.dark-mode .upload-area:hover {
+            background: linear-gradient(135deg, #323d52 0%, #2a3447 50%, #232b3d 100%);
+            border-color: rgba(124, 139, 224, 0.6);
+        }
+
+        body.dark-mode .upload-area.dragover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
         }
 
         .progress-container {
@@ -352,7 +493,7 @@
             margin-top: 25px;
             text-align: center;
             padding: 20px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            background: linear-gradient(135deg, var(--progress-bg) 0%, var(--info-bg-end) 100%);
             border-radius: 12px;
         }
 
@@ -385,7 +526,7 @@
         }
 
         .progress-text {
-            color: #495057;
+            color: var(--text-secondary);
             font-size: 15px;
             font-weight: 600;
         }
@@ -488,8 +629,11 @@
     <!-- 浮动通知容器 -->
     <div class="toast-container" id="toastContainer"></div>
     
+    <!-- 主题切换按钮 -->
+    <button class="theme-toggle" id="themeToggle" title="切换主题">🌙</button>
+    
     <div class="container">
-        <h1>WaveClip 🎵</h1>
+        <h1><svg class="logo-svg" viewBox="0 0 2010 1024" xmlns="http://www.w3.org/2000/svg"><path d="M1726.976 665.827556c-117.304889 0-177.189926-60.795259-226.038519-109.454223-41.566815-42.552889-72.097185-72.969481-135.623111-72.969481-64.777481 0-95.345778 29.202963-136.874666 69.328592-48.886519 46.231704-108.771556 104.599704-223.61126 104.599704-114.87763 0-175.976296-58.368-223.611259-104.599704-41.566815-40.12563-72.097185-69.328593-136.874666-69.328592-63.525926 0-94.094222 30.416593-135.623112 72.969481-48.886519 48.658963-108.771556 109.454222-224.862814 109.454223-134.409481 0-219.932444-102.134519-282.244741-176.31763l96.521481-80.289185c62.312296 74.183111 116.091259 131.375407 186.974815 131.375407 63.525926 0 94.056296-30.416593 135.623111-72.969481 48.886519-48.658963 108.73363-109.492148 224.824889-109.492148s175.976296 58.405926 223.611259 104.599703c41.566815 40.12563 72.097185 69.328593 136.874667 69.328593s95.307852-29.202963 136.874667-69.328593c48.848593-46.193778 108.73363-104.599704 223.573333-104.599703 116.091259 0 177.189926 60.833185 224.862815 109.492148 41.566815 42.552889 72.097185 72.969481 135.623111 72.969481 70.883556 0 124.624593-57.192296 186.974815-131.375407L2010.472296 489.509926c-63.525926 74.183111-149.086815 176.31763-283.496296 176.31763z m0-358.172445c-117.304889 0-177.189926-60.795259-226.038519-109.454222-41.566815-42.552889-72.097185-72.969481-135.623111-72.969482-64.777481 0-95.345778 29.202963-136.874666 69.328593-48.886519 46.231704-108.771556 104.599704-223.61126 104.599704-114.87763 0-175.976296-58.368-223.611259-104.599704-41.566815-40.12563-72.097185-69.328593-136.874666-69.328593-63.525926 0-94.094222 30.416593-135.623112 72.969482-48.886519 48.658963-108.771556 109.454222-224.862814 109.454222C149.447111 307.655111 63.924148 205.520593 0.398222 131.337481l96.521482-80.289185C159.232 125.231407 213.010963 182.423704 283.856593 182.423704c63.563852 0 94.094222-30.416593 135.661037-72.969482C468.366222 60.795259 528.251259 0 644.342519 0s175.976296 58.368 223.611259 104.561778c41.528889 40.12563 72.097185 69.328593 136.874666 69.328592 64.739556 0 95.307852-29.202963 136.836741-69.328592C1190.551704 58.368 1250.436741 0 1365.31437 0c116.053333 0 177.152 60.795259 224.824889 109.454222 41.528889 42.552889 72.097185 72.969481 135.623111 72.969482 70.883556 0 124.624593-57.192296 186.974815-131.375408l96.521482 80.289185c-76.98963 92.425481-157.658074 176.31763-282.282667 176.31763zM285.108148 898.730667c63.525926 0 94.056296-30.378667 135.623111-72.969482 48.886519-48.621037 108.73363-109.454222 224.824889-109.454222s175.976296 58.405926 223.611259 104.599704c41.566815 40.12563 72.097185 69.328593 136.874667 69.328592s95.307852-29.202963 136.874667-69.328592c48.848593-46.193778 108.73363-104.599704 223.573333-104.599704 116.091259 0 177.189926 60.833185 224.862815 109.454222 41.566815 42.590815 72.097185 72.969481 135.623111 72.969482 70.883556 0 124.624593-57.15437 186.974815-131.337482L2010.472296 847.68237C1946.94637 921.865481 1861.385481 1024 1726.976 1024c-117.304889 0-177.189926-60.795259-226.038519-109.454222-41.566815-42.552889-72.097185-72.969481-135.623111-72.969482-64.777481 0-95.345778 29.202963-136.874666 69.328593-48.886519 46.231704-108.771556 104.599704-223.61126 104.599704-114.87763 0-175.976296-58.368-223.611259-104.599704-41.566815-40.12563-72.097185-69.328593-136.874666-69.328593-63.525926 0-94.094222 30.416593-135.623112 72.969482C459.832889 963.204741 399.947852 1024 283.856593 1024 149.447111 1024 63.924148 921.865481 1.611852 847.68237l96.521481-80.289185c62.312296 74.183111 116.091259 131.337481 186.974815 131.337482z"/></svg>WaveClip</h1>
         
         <div class="upload-area" id="uploadArea">
             <input type="file" id="audioInput" accept="audio/*">
@@ -546,6 +690,55 @@
         let endTime = 0;
         let duration = 0;
         let isDragging = null;
+
+        // 主题切换
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        const themes = ['auto', 'light', 'dark']; // auto 使用系统偏好
+        const themeIcons = ['🌓', '☀️', '🌙']; // auto, light, dark
+        let currentThemeIndex = 0;
+
+        // 检测系统主题
+        function getSystemTheme() {
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+
+        // 应用主题
+        function applyTheme(theme) {
+            body.classList.remove('light-mode', 'dark-mode');
+            
+            if (theme === 'light') {
+                body.classList.add('light-mode');
+            } else if (theme === 'dark') {
+                body.classList.add('dark-mode');
+            } else {
+                // auto: 跟随系统
+                const systemTheme = getSystemTheme();
+                body.classList.add(systemTheme + '-mode');
+            }
+            
+            // 更新按钮图标
+            const themeIndex = themes.indexOf(theme);
+            themeToggle.textContent = themeIcons[themeIndex];
+            themeToggle.title = `当前模式: ${theme === 'auto' ? '自适应' : theme === 'light' ? '浅色' : '深色'} (点击切换)`;
+        }
+
+        // 主题切换点击
+        themeToggle.addEventListener('click', () => {
+            currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+            applyTheme(themes[currentThemeIndex]);
+        });
+
+        // 监听系统主题变化
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (themes[currentThemeIndex] === 'auto') {
+                body.classList.remove('light-mode', 'dark-mode');
+                body.classList.add(e.matches ? 'dark-mode' : 'light-mode');
+            }
+        });
+
+        // 初始化主题
+        applyTheme('auto');
 
         // DOM 元素
         const uploadArea = document.getElementById('uploadArea');
@@ -805,6 +998,30 @@
         endSlider.addEventListener('mousedown', (e) => {
             e.preventDefault();
             isDragging = 'end';
+        });
+
+        // 双击左侧控制杆 - 开始时间归零
+        startSlider.addEventListener('dblclick', (e) => {
+            if (!audioBuffer || !duration) return;
+            e.preventDefault();
+            startTime = 0;
+            // 确保开始时间不超过结束时间至少0.1秒
+            if (startTime >= endTime - 0.1) {
+                endTime = Math.min(startTime + 0.1, duration);
+            }
+            updateTrimUI();
+        });
+
+        // 双击右侧控制杆 - 结束时间设为最大
+        endSlider.addEventListener('dblclick', (e) => {
+            if (!audioBuffer || !duration) return;
+            e.preventDefault();
+            endTime = duration;
+            // 确保结束时间比开始时间至少大0.1秒
+            if (endTime <= startTime + 0.1) {
+                startTime = Math.max(0, endTime - 0.1);
+            }
+            updateTrimUI();
         });
 
         document.addEventListener('mousemove', (e) => {
