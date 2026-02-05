@@ -248,7 +248,13 @@
         }
 
         .upload-area.compact {
-            padding: 20px 40px;
+            padding: 25px 20px;
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 100px;
         }
 
         .upload-area.compact .upload-icon {
@@ -290,12 +296,28 @@
             display: block;
         }
 
+        .audio-section-header {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: stretch;
+        }
+
+        .audio-section-header > * {
+            flex: 1 1 0;
+            min-width: 0;
+        }
+
         .audio-info {
             background: linear-gradient(135deg, var(--info-bg-start) 0%, var(--info-bg-end) 100%);
             padding: 18px 20px;
             border-radius: 12px;
-            margin-bottom: 20px;
-            border-left: 4px solid var(--info-border);
+            border: 2px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 100px;
         }
 
         .audio-info p {
@@ -706,7 +728,7 @@
         /* 深色模式下文件信息栏增强 */
         body.dark-mode .audio-info {
             background: linear-gradient(135deg, #344054 0%, #2d3a4f 100%);
-            border-left-color: #8b9dc3;
+            border-color: #7c8be0;
         }
 
         body.dark-mode .audio-info p {
@@ -1344,6 +1366,24 @@
                 width: 100%;
                 margin-top: 4px;
             }
+
+            .audio-section-header {
+                flex-direction: column;
+            }
+
+            .audio-section-header > * {
+                flex: 1 1 auto;
+                width: 100%;
+            }
+
+            .upload-area.compact {
+                padding: 20px;
+                min-height: 80px;
+            }
+
+            .audio-info {
+                min-height: 80px;
+            }
         }
 
         .help-tip {
@@ -1390,9 +1430,11 @@
         </div>
 
         <div class="audio-section" id="audioSection">
-            <div class="audio-info">
-                <p>文件名: <span id="fileName">-</span></p>
-                <p>时长: <span id="duration">-</span> │ 大小: <span id="fileSize">-</span> │ 比特率: <span id="bitRate">-</span></p>
+            <div class="audio-section-header">
+                <div class="audio-info">
+                    <p>文件名: <span id="fileName">-</span></p>
+                    <p>时长: <span id="duration">-</span> │ 大小: <span id="fileSize">-</span> │ 比特率: <span id="bitRate">-</span></p>
+                </div>
             </div>
 
             <div class="waveform-wrapper">
@@ -2476,8 +2518,12 @@
             
             audioSection.classList.add('active');
             
-            // 减小上传区域高度
+            // 减小上传区域高度并移动到音频区域头部
             uploadArea.classList.add('compact');
+            const audioSectionHeader = document.querySelector('.audio-section-header');
+            if (audioSectionHeader && !audioSectionHeader.contains(uploadArea)) {
+                audioSectionHeader.insertBefore(uploadArea, audioSectionHeader.firstChild);
+            }
             
             // 等待 DOM 更新后再绘制波形
             setTimeout(() => {
@@ -2521,7 +2567,9 @@
             const channelData = audioBuffer.getChannelData(0);
             // 根据缩放级别计算显示的数据范围
             const visibleSamples = channelData.length / zoomLevel;
-            const startSample = Math.floor(scrollOffset * (channelData.length - visibleSamples));
+            // 修复：scrollOffset 的范围是 0 到 (1 - 1/zoomLevel)，需要正确映射到样本索引
+            const maxStartSample = channelData.length - visibleSamples;
+            const startSample = zoomLevel <= 1 ? 0 : Math.floor((scrollOffset / (1 - 1/zoomLevel)) * maxStartSample);
             const endSample = Math.min(startSample + visibleSamples, channelData.length);
             const step = Math.max(1, Math.ceil(visibleSamples / width));
             const centerY = height / 2;
