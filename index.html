@@ -517,7 +517,7 @@
 
             <div class="time-display">
                 <span>开始: <span id="startTime" class="time-editable" contenteditable="true" title="点击编辑开始时间">0:00</span></span>
-                <span class="cursor-time">光标: <span id="cursorTime">-</span></span>
+
                 <span>结束: <span id="endTime" class="time-editable" contenteditable="true" title="点击编辑结束时间">0:00</span></span>
             </div>
 
@@ -556,7 +556,6 @@
         const durationEl = document.getElementById('duration');
         const startTimeEl = document.getElementById('startTime');
         const endTimeEl = document.getElementById('endTime');
-        const cursorTimeEl = document.getElementById('cursorTime');
         const startSlider = document.getElementById('startSlider');
         const endSlider = document.getElementById('endSlider');
         const trimArea = document.getElementById('trimArea');
@@ -585,6 +584,10 @@
         let isSelecting = false;
         let selectStartX = 0;
         let selectStartTime = 0;
+        let mouseDownX = 0;
+        let mouseDownY = 0;
+        let hasDragged = false;
+        const MIN_DRAG_DISTANCE = 5; // 最小拖拽距离（像素）
 
         // 设置 canvas 尺寸
         function resizeCanvas() {
@@ -1005,7 +1008,6 @@
             isMouseOverWaveform = false;
             previewLine.classList.remove('active');
             cursorTimeTooltip.classList.remove('active');
-            cursorTimeEl.textContent = '-';
             updatePlayBtnText();
         });
         
@@ -1021,29 +1023,56 @@
             
             // 更新光标时间显示（下方）
             const cursorTime = mouseXPercent * duration;
-            cursorTimeEl.textContent = formatTime(cursorTime);
             
             // 更新浮动时间提示框（上方跟随鼠标）
             cursorTimeTooltip.textContent = formatTime(cursorTime);
             cursorTimeTooltip.style.left = `${x}px`;
             
-            // 框选模式：更新选择预览区域和时间框
+            // 框选模式：检查拖拽距离并更新选择预览区域
             if (isSelecting) {
-                const currentX = Math.max(0, Math.min(rect.width, x));
-                const startX = Math.max(0, Math.min(rect.width, selectStartX));
-                const leftX = Math.min(startX, currentX);
-                const width = Math.abs(currentX - startX);
+                // 计算拖拽距离
+                const dragDistance = Math.sqrt(
+                    Math.pow(e.clientX - mouseDownX, 2) + 
+                    Math.pow(e.clientY - mouseDownY, 2)
+                );
                 
-                selectionPreview.style.left = `${leftX}px`;
-                selectionPreview.style.width = `${width}px`;
+                // 超过阈值才真正开始框选视觉反馈
+                if (dragDistance > MIN_DRAG_DISTANCE) {
+                    hasDragged = true;
+                    
+                    // 第一次超过阈值时，初始化框选UI
+                    if (selectionPreview.style.display !== 'block') {
+                        previewLine.classList.remove('active');
+                        cursorTimeTooltip.classList.remove('active');
+                        selectionPreview.classList.add('active');
+                        selectionPreview.style.left = `${selectStartX}px`;
+                        selectionPreview.style.width = '0px';
+                        
+                        // 显示起点时间框
+                        selectStartTooltip.textContent = formatTime(selectStartTime);
+                        selectStartTooltip.style.left = `${selectStartX}px`;
+                        selectStartTooltip.classList.add('active');
+                    }
+                }
                 
-                // 更新起点时间框位置（固定在起点上方）
-                selectStartTooltip.style.left = `${startX}px`;
-                
-                // 更新跟随鼠标的时间框位置和内容（显示当前/终点时间）
-                cursorTimeTooltip.classList.add('active');
-                cursorTimeTooltip.style.left = `${x}px`;
-                cursorTimeTooltip.textContent = formatTime((currentX / rect.width) * duration);
+                // 只有在真正开始拖拽后才更新选择区域
+                if (hasDragged) {
+                    const currentX = Math.max(0, Math.min(rect.width, x));
+                    const startX = Math.max(0, Math.min(rect.width, selectStartX));
+                    const leftX = Math.min(startX, currentX);
+                    const width = Math.abs(currentX - startX);
+                    
+                    selectionPreview.style.left = `${leftX}px`;
+                    selectionPreview.style.width = `${width}px`;
+                    
+                    // 更新起点时间框位置（固定在起点上方）
+                    selectStartTooltip.style.left = `${startX}px`;
+                    
+                    // 更新跟随鼠标的时间框位置和内容（显示当前/终点时间）
+                    cursorTimeTooltip.classList.add('active');
+                    cursorTimeTooltip.style.left = `${x}px`;
+                    cursorTimeTooltip.textContent = formatTime((currentX / rect.width) * duration);
+                }
             }
         });
         
@@ -1062,26 +1091,30 @@
             }
             
             const rect = waveformContainer.getBoundingClientRect();
+            mouseDownX = e.clientX;
+            mouseDownY = e.clientY;
             selectStartX = e.clientX - rect.left;
             selectStartTime = (selectStartX / rect.width) * duration;
+            hasDragged = false;
             
-            // 启动框选模式
+            // 标记可能开始框选（但还没确定）
             isSelecting = true;
-            previewLine.classList.remove('active');
-            cursorTimeTooltip.classList.remove('active');
-            selectionPreview.classList.add('active');
-            selectionPreview.style.left = `${selectStartX}px`;
-            selectionPreview.style.width = '0px';
-            
-            // 显示起点时间框
-            selectStartTooltip.textContent = formatTime(selectStartTime);
-            selectStartTooltip.style.left = `${selectStartX}px`;
-            selectStartTooltip.classList.add('active');
         });
         
         // 框选功能：鼠标松开完成选择
         document.addEventListener('mouseup', (e) => {
             if (!isSelecting || !audioBuffer || !duration) return;
+            
+            // 如果没有真正拖拽（只是单击），取消框选
+            if (!hasDragged) {
+                isSelecting = false;
+                // 恢复预览线显示
+                if (isMouseOverWaveform) {
+                    previewLine.classList.add('active');
+                    cursorTimeTooltip.classList.add('active');
+                }
+                return;
+            }
             
             const rect = waveformContainer.getBoundingClientRect();
             const currentX = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
@@ -1108,6 +1141,7 @@
             
             // 结束框选模式
             isSelecting = false;
+            hasDragged = false;
             selectionPreview.classList.remove('active');
             selectStartTooltip.classList.remove('active');
             if (isMouseOverWaveform) {
