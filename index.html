@@ -1247,22 +1247,22 @@
                 <button class="btn-secondary" id="playBtn">▶ 播放片段</button>
                 <div class="export-dropdown">
                     <button class="btn-primary" id="exportBtn">
-                        <span class="export-main">导出 MP3</span>
-                        <span class="export-bitrate" id="exportBitRateDisplay">192 kbps</span>
+                        <span class="export-main">导出选中的音频</span>
+                        <span class="export-bitrate" id="exportBitRateDisplay">MP3 192kbps</span>
                     </button>
                     <button class="btn-primary dropdown-arrow" id="exportArrow">▲</button>
                     <div class="dropdown-menu" id="exportMenu">
                         <div class="dropdown-item" data-bitrate="128">
                             <span class="dropdown-label">普通品质</span>
-                            <span class="dropdown-value">128 kbps</span>
+                            <span class="dropdown-value">128kbps</span>
                         </div>
                         <div class="dropdown-item active" data-bitrate="192">
                             <span class="dropdown-label">标准品质</span>
-                            <span class="dropdown-value">192 kbps</span>
+                            <span class="dropdown-value">192kbps</span>
                         </div>
                         <div class="dropdown-item" data-bitrate="320">
                             <span class="dropdown-label">高品质</span>
-                            <span class="dropdown-value">320 kbps</span>
+                            <span class="dropdown-value">320kbps</span>
                         </div>
                     </div>
                 </div>
@@ -1781,7 +1781,7 @@
                 exportMenu.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('active'));
                 item.classList.add('active');
                 exportBitRate = parseInt(item.dataset.bitrate);
-                exportBitRateDisplay.textContent = exportBitRate + ' kbps';
+                exportBitRateDisplay.textContent = 'MP3 ' + exportBitRate + 'kbps';
                 exportMenu.classList.remove('show');
             });
         });
