@@ -15,7 +15,7 @@
 ├── files.svg       # 文件夹图标
 ├── start.sh        # 启动脚本
 ├── Dockerfile      # Docker 配置
-└── README.md       # 本斄档
+└── README.md       # 本文档
 ```
 
 ## 技术架构
