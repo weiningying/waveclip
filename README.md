@@ -105,7 +105,11 @@ let hasFileLoaded = false;   // 是否已加载文件
 
 ## 快速启动
 
-### 方式一：使用启动脚本
+### 方式一：使用浏览器打开index.html
+直接用浏览器打开index.html即可使用。
+若需要发布则需用到web服务器（如nginx）。
+
+### 方式二：使用启动脚本
 
 ```bash
 cd /data/waveclip
@@ -113,14 +117,14 @@ cd /data/waveclip
 ./start.sh 3000   # 指定端口
 ```
 
-### 方式二：手动启动
+### 方式三：手动启动
 
 ```bash
 cd /data/waveclip
 python3 -m http.server 8080 --bind 0.0.0.0
 ```
 
-### 方式三：使用 Docker
+### 方式四：使用 Docker
 
 ```bash
 # 本地构建运行
