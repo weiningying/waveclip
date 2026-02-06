@@ -1558,7 +1558,7 @@
                     <input type="text" class="toolbar-prefix-input" id="prefixInput" placeholder="自定义导出前缀" title="导出文件名前缀（为空则使用 WaveClip）">
                 </div>
                 <div class="waveform-scrollbar" id="waveformScrollbar">
-                    <div class="waveform-scroll-track">
+                    <div class="waveform-scroll-track" id="waveformScrollTrack">
                         <div class="waveform-scroll-thumb" id="waveformScrollThumb"></div>
                     </div>
                 </div>
@@ -1925,6 +1925,7 @@
         const ctx = canvas.getContext('2d');
         const waveformScrollbar = document.getElementById('waveformScrollbar');
         const waveformScrollThumb = document.getElementById('waveformScrollThumb');
+        const waveformScrollTrack = document.getElementById('waveformScrollTrack');
         const waveformTimeline = document.getElementById('waveformTimeline');
         const timelineCanvas = document.getElementById('timelineCanvas');
         const timelineCtx = timelineCanvas.getContext('2d');
@@ -2697,14 +2698,6 @@
             ctx.lineTo(width, centerY);
             ctx.stroke();
 
-            // 创建渐变 - 从顶部蓝色到底部蓝色，中间绿色
-            const gradient = ctx.createLinearGradient(0, 0, 0, height);
-            gradient.addColorStop(0, '#58a6ff');
-            gradient.addColorStop(0.5, '#238636');
-            gradient.addColorStop(1, '#58a6ff');
-            
-            ctx.fillStyle = gradient;
-            
             // 计算每个像素点的振幅值
             const amplitudes = [];
             for (let i = 0; i < width; i++) {
@@ -2723,45 +2716,77 @@
             // 找到最大振幅用于归一化
             const globalMax = Math.max(...amplitudes, 0.001);
             
-            // 绘制上半部分
-            ctx.beginPath();
-            for (let i = 0; i < width; i++) {
-                // 归一化并适当增强
-                const normalizedAmp = Math.min(1, (amplitudes[i] / globalMax) * 1.1);
-                const y = centerY - normalizedAmp * maxAmplitude;
-                
-                if (i === 0) {
-                    ctx.moveTo(i, centerY);
-                    ctx.lineTo(i, y);
-                } else {
-                    ctx.lineTo(i, y);
-                }
-            }
-            for (let i = width - 1; i >= 0; i--) {
-                ctx.lineTo(i, centerY);
-            }
-            ctx.closePath();
-            ctx.fill();
+            // 计算选中区域在画布上的位置
+            const visibleStartPercent = scrollOffset;
+            const visibleEndPercent = scrollOffset + 1/zoomLevel;
+            const selectionStartPercent = startTime / duration;
+            const selectionEndPercent = endTime / duration;
             
-            // 绘制下半部分
-            ctx.beginPath();
-            for (let i = 0; i < width; i++) {
-                const normalizedAmp = Math.min(1, (amplitudes[i] / globalMax) * 1.1);
-                const y = centerY + normalizedAmp * maxAmplitude;
-                
-                if (i === 0) {
-                    ctx.moveTo(i, centerY);
-                    ctx.lineTo(i, y);
-                } else {
-                    ctx.lineTo(i, y);
-                }
-            }
-            for (let i = width - 1; i >= 0; i--) {
-                ctx.lineTo(i, centerY);
-            }
-            ctx.closePath();
-            ctx.fill();
+            // 计算选中区域在可见区域内的相对位置
+            const relativeSelectionStart = (selectionStartPercent - visibleStartPercent) / (visibleEndPercent - visibleStartPercent);
+            const relativeSelectionEnd = (selectionEndPercent - visibleStartPercent) / (visibleEndPercent - visibleStartPercent);
             
+            // 转换为像素坐标
+            const selectionStartX = Math.max(0, Math.min(width, relativeSelectionStart * width));
+            const selectionEndX = Math.max(0, Math.min(width, relativeSelectionEnd * width));
+
+            // 颜色设置 - 纯色版（不使用渐变）
+            const highlightColor = '#58a6ff';  // 选中区域：亮蓝色
+            const dimColor = '#30363d';        // 非选中区域：暗灰色
+
+            // 绘制函数 - 绘制指定区域的波形
+            function drawWaveformSegment(startX, endX, isHighlight) {
+                if (startX >= endX) return;
+                
+                ctx.fillStyle = isHighlight ? highlightColor : dimColor;
+                
+                // 绘制上半部分
+                ctx.beginPath();
+                for (let i = Math.floor(startX); i <= Math.ceil(endX); i++) {
+                    if (i < 0 || i >= width) continue;
+                    const normalizedAmp = Math.min(1, (amplitudes[i] / globalMax) * 1.1);
+                    const y = centerY - normalizedAmp * maxAmplitude;
+                    
+                    if (i === Math.floor(startX)) {
+                        ctx.moveTo(i, centerY);
+                        ctx.lineTo(i, y);
+                    } else {
+                        ctx.lineTo(i, y);
+                    }
+                }
+                for (let i = Math.ceil(endX); i >= Math.floor(startX); i--) {
+                    if (i < 0 || i >= width) continue;
+                    ctx.lineTo(i, centerY);
+                }
+                ctx.closePath();
+                ctx.fill();
+                
+                // 绘制下半部分
+                ctx.beginPath();
+                for (let i = Math.floor(startX); i <= Math.ceil(endX); i++) {
+                    if (i < 0 || i >= width) continue;
+                    const normalizedAmp = Math.min(1, (amplitudes[i] / globalMax) * 1.1);
+                    const y = centerY + normalizedAmp * maxAmplitude;
+                    
+                    if (i === Math.floor(startX)) {
+                        ctx.moveTo(i, centerY);
+                        ctx.lineTo(i, y);
+                    } else {
+                        ctx.lineTo(i, y);
+                    }
+                }
+                for (let i = Math.ceil(endX); i >= Math.floor(startX); i--) {
+                    if (i < 0 || i >= width) continue;
+                    ctx.lineTo(i, centerY);
+                }
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            // 绘制三个区域：左边非选中、中间选中、右边非选中
+            drawWaveformSegment(0, selectionStartX, false);                    // 左边非选中区域
+            drawWaveformSegment(selectionStartX, selectionEndX, true);          // 中间选中区域（高亮）
+            drawWaveformSegment(selectionEndX, width, false);                   // 右边非选中区域
         }
         
         // 更新播放位置线
@@ -2820,6 +2845,9 @@
             
             startTimeEl.textContent = formatTime(startTime);
             endTimeEl.textContent = formatTime(endTime);
+            
+            // 重绘波形以更新高亮区域
+            drawWaveform();
             
             // 更新滚动条
             updateScrollbar();
@@ -2939,6 +2967,7 @@
                 
                 waveformScrollThumb.style.width = `${thumbWidth}px`;
                 waveformScrollThumb.style.left = `${thumbLeft}px`;
+                
             } else {
                 waveformScrollbar.classList.remove('visible');
             }
@@ -3576,6 +3605,7 @@
                 drawWaveform();
                 updateTrimUI();
                 updatePlayhead();
+                updateScrollArrows();
             }
             
             if (isScrollThumbDragging) {
@@ -3597,6 +3627,7 @@
                 drawWaveform();
                 updateTrimUI();
                 updatePlayhead();
+                updateScrollArrows();
             }
         });
         
@@ -3647,6 +3678,32 @@
             drawWaveform();
             updateTrimUI();
             updatePlayhead();
+        }, { passive: false });
+        
+        // body 背景滚轮事件 - 控制波形滚动
+        document.body.addEventListener('wheel', (e) => {
+            // 只有在 body 背景或 container 外部时才触发
+            // 检查鼠标是否在 container 内部
+            const container = document.querySelector('.container');
+            const isOverContainer = container && (container.contains(e.target) || e.target === container);
+            
+            // 如果在 container 内部，不处理（让其他元素处理）
+            if (isOverContainer) return;
+            
+            // 需要有音频且处于放大状态
+            if (!audioBuffer || zoomLevel <= 1) return;
+            
+            e.preventDefault();
+            
+            // 滚轮左右平移
+            const scrollSpeed = 0.05 / zoomLevel;
+            const delta = e.deltaY > 0 ? scrollSpeed : -scrollSpeed;
+            scrollOffset = Math.max(0, Math.min(1 - 1/zoomLevel, scrollOffset + delta));
+            
+            drawWaveform();
+            updateTrimUI();
+            updatePlayhead();
+            updateScrollArrows();
         }, { passive: false });
         
         // 阻止中键默认行为（避免浏览器默认的滚动行为）
